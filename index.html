@@ -13,7 +13,7 @@
   <header class="site-header" id="top">
     <a class="brand" href="#top" aria-label="トップへ"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a>
     <nav class="nav" aria-label="メインメニュー"><a href="#items">商品</a><a href="#about">ブランド</a><a href="#guide">購入案内</a></nav>
-    <a class="header-cta" href="#items">商品を見る</a>
+    <button class="menu-button" type="button" aria-label="メニューを開く" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </header>
   <main>
     <section class="hero" aria-labelledby="hero-title">
@@ -35,6 +35,11 @@
 
     <section class="section items-section" id="items" aria-labelledby="items-title">
       <div class="section-heading"><div><p class="kicker">ITEMS</p><h2 id="items-title">気になる色から、<br>選ぶ。</h2></div><p>現在はピアスを中心に制作しています。<br>価格と販売リンクは仮表示です。</p></div>
+      <div class="category-filters" aria-label="商品カテゴリ">
+        <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">すべて</button>
+        <button class="filter-button" type="button" data-filter="ear">ピアス・イヤリング</button>
+        <button class="filter-button" type="button" data-filter="bracelet">ブレスレット</button>
+      </div>
       <div class="product-grid">
         <article class="product-card" data-name="Color Mix" data-image="./assets/item-01.webp" data-copy="ピンク、ブルー、クリアの粒が重なる、可愛らしく透明感のあるデザイン。" data-color="Pink / Blue / Clear"><button class="product-open" type="button" aria-label="Color Mixの詳細を見る"><span class="product-image"><img src="./assets/item-01.webp" alt="ピンクとブルーのビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Color Mix</strong><small>Pink & Blue</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
         <article class="product-card" data-name="Forest Drop" data-image="./assets/item-02.webp" data-copy="深いグリーンと透明感を重ねた、落ち着いた色味のドロップデザイン。" data-color="Green / Clear"><button class="product-open" type="button" aria-label="Forest Dropの詳細を見る"><span class="product-image"><img src="./assets/item-02.webp" alt="グリーン系のビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Forest Drop</strong><small>Green</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
@@ -51,7 +56,27 @@
 
     <section class="section guide-section" id="guide" aria-labelledby="guide-title"><div class="section-heading compact-heading"><div><p class="kicker">SHOP GUIDE</p><h2 id="guide-title">購入について</h2></div><p>現在はメルカリでの販売を予定しています。</p></div><div class="guide-grid"><article class="guide-card"><span class="guide-number">01</span><h3>発送</h3><p>発送目安は1〜2日。状況によっては当日発送します。</p></article><article class="guide-card"><span class="guide-number">02</span><h3>まとめ買い</h3><p>2点50円引き / 3点100円引き / 4点200円引き。4点以上は1点につき50円引きです。</p></article><article class="guide-card"><span class="guide-number">03</span><h3>個数について</h3><p>すべて手作業のため、制作状況に応じて個数を制限する場合があります。</p></article></div></section>
     <section class="shop-cta" aria-labelledby="shop-title"><p class="kicker">ONLINE SHOP</p><h2 id="shop-title">気になるものを<br>見つけたら。</h2><p>販売中の商品はメルカリから購入いただける予定です。</p><button class="button button-dark pseudo-mercari" type="button">メルカリで商品を見る <span aria-hidden="true">→</span></button><small>※ 現在はデモサイトのため、リンクは未設定です。</small></section>
+    <section class="news-signup" id="news" aria-labelledby="news-title">
+      <p class="kicker">NEWS &amp; RESTOCK</p>
+      <h2 id="news-title">新しいきらめきを、<br>お知らせ。</h2>
+      <p>新作・再販・新色のお知らせを受け取れる機能を準備中です。今は画面と操作を試せるデモです。</p>
+      <button class="button button-dark demo-action" type="button" data-message="通知登録はデモです。本番接続前に通知方法を確認します。">お知らせを受け取る</button>
+    </section>
   </main>
+  <div class="menu-scrim" data-menu-close hidden></div>
+  <aside class="site-menu" id="site-menu" aria-hidden="true" aria-label="サイトメニュー">
+    <div class="menu-head"><a class="brand" href="#top"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a><button class="menu-close" type="button" aria-label="メニューを閉じる" data-menu-close>×</button></div>
+    <nav class="drawer-nav">
+      <a href="#items" data-menu-close><span>01</span>商品を見る</a>
+      <a href="#items" data-filter-link="ear" data-menu-close><span>02</span>ピアス・イヤリング</a>
+      <a href="#items" data-filter-link="bracelet" data-menu-close><span>03</span>ブレスレット</a>
+      <a href="#about" data-menu-close><span>04</span>Lux Canisについて</a>
+      <a href="#guide" data-menu-close><span>05</span>購入方法</a>
+      <button type="button" class="drawer-link demo-action" data-message="お問い合わせフォームは本番接続前のデモです。"><span>06</span>お問い合わせ</button>
+    </nav>
+    <div class="drawer-social"><button class="demo-action" type="button" data-message="メルカリURLは未設定です。">Mercari ↗</button><button class="demo-action" type="button" data-message="Instagram URLは未設定です。">Instagram ↗</button></div>
+    <p class="drawer-note">MENU</p>
+  </aside>
   <footer class="footer"><a class="brand footer-brand" href="#top"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a><p>色と光を楽しむ、ハンドメイドアクセサリー。</p><p class="copyright">© <span id="year"></span> Lux Canis</p></footer>
   <dialog class="product-dialog" id="product-dialog" aria-labelledby="dialog-title"><button class="dialog-close" type="button" aria-label="閉じる">×</button><div class="dialog-grid"><div class="dialog-image-wrap"><img id="dialog-image" src="" alt=""></div><div class="dialog-copy"><p class="kicker">ITEM DETAIL</p><h2 id="dialog-title"></h2><p class="dialog-price">¥#,###</p><p id="dialog-description"></p><dl class="detail-list"><div><dt>カラー</dt><dd id="dialog-color"></dd></div><div><dt>発送目安</dt><dd>1〜2日</dd></div><div><dt>販売</dt><dd>メルカリ予定</dd></div></dl><button class="button button-dark pseudo-mercari" type="button">メルカリで購入する <span aria-hidden="true">→</span></button><p class="dialog-note">※ 価格・商品名・販売リンクは現在デモ表示です。</p></div></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite">メルカリURLはまだ未設定です。</div>
