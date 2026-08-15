@@ -56,12 +56,12 @@
     <section class="section about-section" id="about" aria-labelledby="about-title"><div class="about-copy"><p class="kicker">ABOUT LUX CANIS</p><h2 id="about-title">ひとつひとつ、<br>丁寧に。</h2><p>Lux Canis（ルクス・カニス）は、色と光の組み合わせを楽しむハンドメイドアクセサリーブランドです。</p><p>日常の中で気軽に使えて、身につけたときに少し嬉しくなるものを目指して制作しています。</p></div><div class="about-gallery"><figure class="about-photo about-photo-large"><img src="./assets/item-09.webp" alt="グリーンとオレンジのビーズピアス" loading="lazy"></figure><figure class="about-photo"><img src="./assets/item-08.webp" alt="雫モチーフのアクセサリー" loading="lazy"></figure><figure class="about-photo"><img src="./assets/item-10.webp" alt="ビーズピアスのアップ" loading="lazy"></figure></div></section>
 
     <section class="section guide-section" id="guide" aria-labelledby="guide-title"><div class="section-heading compact-heading"><div><p class="kicker">SHOP GUIDE</p><h2 id="guide-title">購入について</h2></div><p>現在はメルカリでの販売を予定しています。</p></div><div class="guide-grid"><article class="guide-card"><span class="guide-number">01</span><h3>発送</h3><p>発送目安は1〜2日。状況によっては当日発送します。</p></article><article class="guide-card"><span class="guide-number">02</span><h3>まとめ買い</h3><p>2点50円引き / 3点100円引き / 4点200円引き。4点以上は1点につき50円引きです。</p></article><article class="guide-card"><span class="guide-number">03</span><h3>個数について</h3><p>すべて手作業のため、制作状況に応じて個数を制限する場合があります。</p></article></div></section>
-    <section class="shop-cta" aria-labelledby="shop-title"><p class="kicker">ONLINE SHOP</p><h2 id="shop-title">気になるものを<br>見つけたら。</h2><p>販売中の商品はメルカリから購入いただける予定です。</p><button class="button button-dark pseudo-mercari" type="button">メルカリで商品を見る <span aria-hidden="true">→</span></button><small>※ 現在はデモサイトのため、リンクは未設定です。</small></section>
+    <section class="shop-cta" aria-labelledby="shop-title"><p class="kicker">ONLINE SHOP</p><h2 id="shop-title">気になるものを<br>見つけたら。</h2><p>販売中の商品はメルカリから購入いただける予定です。</p><button class="button button-dark pseudo-mercari" type="button">メルカリで商品を見る <span aria-hidden="true">→</span></button><small>※ メルカリの実URLは確認後に設定します。</small></section>
     <section class="news-signup" id="news" aria-labelledby="news-title">
       <p class="kicker">NEWS &amp; RESTOCK</p>
       <h2 id="news-title">新しいきらめきを、<br>お知らせ。</h2>
-      <p>新作・再販・新色のお知らせを受け取れる機能を準備中です。今は画面と操作を試せるデモです。</p>
-      <button class="button button-dark demo-action" type="button" data-message="通知登録はデモです。本番接続前に通知方法を確認します。">お知らせを受け取る</button>
+      <p>新作・再販・新色のお知らせを、マイページで受け取る内容を選べます。</p>
+      <a class="button button-dark" href="./account.html#notifications">通知設定を確認する</a>
     </section>
   </main>
   <div class="menu-scrim" data-menu-close hidden></div>
@@ -74,13 +74,14 @@
       <a href="#about" data-menu-close><span>04</span>Lux Canisについて</a>
       <a href="#guide" data-menu-close><span>05</span>購入方法</a>
       <a href="./account.html"><span>06</span>マイページ・通知設定</a>
-      <a href="./contact.html"><span>07</span>お問い合わせ</a>
+      <a href="./account.html#notices"><span>07</span>お知らせ</a>
+      <a href="./contact.html"><span>08</span>お問い合わせ</a>
     </nav>
     <div class="drawer-social"><button class="demo-action" type="button" data-message="メルカリURLは未設定です。">Mercari ↗</button><button class="demo-action" type="button" data-message="Instagram URLは未設定です。">Instagram ↗</button></div>
     <p class="drawer-note">MENU</p>
   </aside>
   <footer class="footer"><a class="brand footer-brand" href="#top"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a><p>色と光を楽しむ、ハンドメイドアクセサリー。</p><p class="copyright">© <span id="year"></span> Lux Canis</p></footer>
-  <dialog class="product-dialog" id="product-dialog" aria-labelledby="dialog-title"><button class="dialog-close" type="button" aria-label="閉じる">×</button><div class="dialog-grid"><div class="dialog-image-wrap"><img id="dialog-image" src="" alt=""></div><div class="dialog-copy"><p class="kicker">ITEM DETAIL</p><h2 id="dialog-title"></h2><p class="dialog-price">¥#,###</p><p id="dialog-description"></p><dl class="detail-list"><div><dt>カラー</dt><dd id="dialog-color"></dd></div><div><dt>発送目安</dt><dd>1〜2日</dd></div><div><dt>販売</dt><dd>メルカリ予定</dd></div></dl><button class="button button-dark pseudo-mercari" type="button">メルカリで購入する <span aria-hidden="true">→</span></button><p class="dialog-note">※ 価格・商品名・販売リンクは現在デモ表示です。</p></div></div></dialog>
+  <dialog class="product-dialog" id="product-dialog" aria-labelledby="dialog-title"><button class="dialog-close" type="button" aria-label="閉じる">×</button><div class="dialog-grid"><div class="dialog-image-wrap"><img id="dialog-image" src="" alt=""></div><div class="dialog-copy"><p class="kicker">ITEM DETAIL</p><h2 id="dialog-title"></h2><p class="dialog-price">¥#,###</p><p id="dialog-description"></p><dl class="detail-list"><div><dt>カラー</dt><dd id="dialog-color"></dd></div><div><dt>発送目安</dt><dd>1〜2日</dd></div><div><dt>販売</dt><dd>メルカリ予定</dd></div></dl><button class="button button-dark pseudo-mercari" type="button">メルカリで購入する <span aria-hidden="true">→</span></button><p class="dialog-note">※ 価格・商品名・販売URLは確認用表示です。</p></div></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite">メルカリURLはまだ未設定です。</div>
 </body>
 </html>

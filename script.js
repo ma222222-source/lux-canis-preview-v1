@@ -24,7 +24,7 @@ document.querySelector('.product-grid').insertAdjacentElement('afterend', emptyS
 
 window.addEventListener('scroll', () => header?.classList.toggle('scrolled', window.scrollY > 8), { passive: true });
 document.querySelector('#year').textContent = new Date().getFullYear();
-document.querySelector('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="./admin.html">管理画面デモ</a>');
+document.querySelector('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="./admin.html" rel="nofollow">管理画面（確認用）</a>');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
 function showToast(message) {
@@ -83,5 +83,5 @@ productCards.forEach((card, index) => {
 });
 
 document.querySelectorAll('.demo-action, .pseudo-mercari').forEach((button) => {
-  button.addEventListener('click', () => showToast(button.dataset.message || 'リンクは現在デモ表示です。'));
+  button.addEventListener('click', () => showToast(button.dataset.message || '販売URLは現在未設定です。'));
 });
