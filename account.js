@@ -1,169 +1,119 @@
-const views = [...document.querySelectorAll('.account-view')];
-const nav = [...document.querySelectorAll('.account-nav button')];
-const allowedViews = ['profile', 'notifications', 'restock', 'notices'];
-const toast = document.querySelector('#toast');
-const accountKey = 'luxAccount';
+const state = { user: null, notices: [], restock: [] };
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const views = $$('.account-view');
+const nav = $$('.account-nav button');
+const toast = $('#toast');
+let authMode = 'register';
 let toastTimer;
 
-function showToast(message) {
-  clearTimeout(toastTimer);
-  toast.textContent = message;
-  toast.classList.add('show');
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+async function api(path, options = {}) {
+  const response = await fetch(`/api/${path}`, { credentials: 'same-origin', ...options, headers: { 'content-type': 'application/json', ...options.headers } });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw Object.assign(new Error(payload.error?.message || '処理に失敗しました。'), { status: response.status });
+  return payload;
 }
+function notify(message) { clearTimeout(toastTimer); toast.textContent = message; toast.classList.add('show'); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
 
-function showView(name, { syncHash = true } = {}) {
-  const nextView = allowedViews.includes(name) ? name : 'profile';
-  views.forEach((view) => view.classList.toggle('is-active', view.id === `view-${nextView}`));
-  nav.forEach((button) => {
-    const active = button.dataset.view === nextView;
-    button.classList.toggle('is-active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-  if (nextView === 'restock') renderRestock();
-  if (syncHash) {
-    const hash = nextView === 'profile' ? '' : `#${nextView}`;
-    history.replaceState(null, '', `${location.pathname}${location.search}${hash}`);
-  }
+function showView(name, sync = true) {
+  const allowed = ['profile','notifications','restock','notices'];
+  const next = allowed.includes(name) ? name : 'profile';
+  views.forEach((view) => view.classList.toggle('is-active', view.id === `view-${next}`));
+  nav.forEach((button) => { const active = button.dataset.view === next; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); });
+  if (next === 'restock') renderRestock();
+  if (next === 'notices') renderNotices();
+  if (sync) history.replaceState(null, '', `${location.pathname}${location.search}${next === 'profile' ? '' : `#${next}`}`);
 }
-
 nav.forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
-window.addEventListener('hashchange', () => showView(location.hash.slice(1), { syncHash: false }));
+window.addEventListener('hashchange', () => showView(location.hash.slice(1), false));
 
-let authMode = 'register';
-document.querySelectorAll('[data-auth]').forEach((button) => button.addEventListener('click', () => {
+$$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   authMode = button.dataset.auth;
-  document.querySelectorAll('[data-auth]').forEach((item) => item.classList.toggle('is-active', item === button));
-  document.querySelector('#account-submit').textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
-  document.querySelector('#account-name').closest('label').hidden = authMode === 'login';
+  $$('[data-auth]').forEach((item) => item.classList.toggle('is-active', item === button));
+  $('#name-field').hidden = authMode === 'login';
+  $('#account-name').required = authMode === 'register';
+  $('#account-password').autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
+  $('#account-submit').textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
+  $('#auth-error').textContent = '';
 }));
 
-const passwordInput = document.querySelector('#account-password');
-const passwordToggle = document.querySelector('#toggle-password');
-passwordToggle.addEventListener('click', () => {
-  const showing = passwordInput.type === 'text';
-  passwordInput.type = showing ? 'password' : 'text';
-  passwordToggle.textContent = showing ? '表示' : '非表示';
-  passwordToggle.setAttribute('aria-label', showing ? 'パスワードを表示' : 'パスワードを非表示');
+$('#toggle-password').addEventListener('click', () => {
+  const input = $('#account-password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  $('#toggle-password').textContent = input.type === 'password' ? '表示' : '隠す';
 });
 
-const form = document.querySelector('#account-form');
-form.addEventListener('submit', (event) => {
+$('#account-form').addEventListener('submit', async (event) => {
   event.preventDefault();
-  let valid = true;
-  let firstInvalid;
-  form.querySelectorAll('[required]').forEach((input) => {
-    const label = input.closest('label');
-    if (label.hidden) return;
-    const error = label.querySelector('.field-error');
-    error.textContent = '';
-    if (!input.value.trim() || !input.checkValidity()) {
-      error.textContent = input.type === 'email'
-        ? '正しいメールアドレスを入力してください。'
-        : input.type === 'password'
-          ? '8文字以上で入力してください。'
-          : '入力してください。';
-      firstInvalid ||= input;
-      valid = false;
-    }
-  });
-  if (!valid) {
-    firstInvalid?.focus();
-    return;
-  }
-  const existing = JSON.parse(localStorage.getItem(accountKey) || 'null');
-  const data = {
-    name: document.querySelector('#account-name').value || existing?.name || 'ゲスト',
-    email: document.querySelector('#account-email').value,
-  };
-  localStorage.setItem(accountKey, JSON.stringify(data));
-  updateAuth();
-  showToast(authMode === 'register' ? '入力内容をこの端末に保存しました。' : 'ログインしました。');
+  const form = event.currentTarget;
+  $('#auth-error').textContent = '';
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const button = $('#account-submit'); button.disabled = true; button.textContent = '処理中…';
+  try {
+    const payload = { name: $('#account-name').value, email: $('#account-email').value, password: $('#account-password').value };
+    const result = await api(`auth/${authMode}`, { method: 'POST', body: JSON.stringify(payload) });
+    state.user = result.user;
+    form.reset(); renderAccount(); await loadRestock();
+    notify(authMode === 'register' ? '会員登録が完了しました。' : 'ログインしました。');
+  } catch (error) { $('#auth-error').textContent = error.message; } finally { button.disabled = false; button.textContent = authMode === 'register' ? '無料で登録する' : 'ログインする'; }
 });
 
-function updateAuth() {
-  const account = JSON.parse(localStorage.getItem(accountKey) || 'null');
-  document.querySelector('#signed-out').hidden = Boolean(account);
-  document.querySelector('#signed-in').hidden = !account;
-  if (account) {
-    document.querySelector('#profile-name').textContent = account.name;
-    document.querySelector('#profile-email').textContent = account.email;
+$('#logout-button').addEventListener('click', async () => {
+  await api('auth/logout', { method: 'POST', body: '{}' }).catch(() => {});
+  state.user = null; state.restock = []; renderAccount(); showView('profile'); notify('ログアウトしました。');
+});
+
+function renderAccount() {
+  $('#signed-out').hidden = Boolean(state.user);
+  $('#signed-in').hidden = !state.user;
+  $('#preference-list').hidden = !state.user;
+  $$('.login-required').forEach((item) => item.hidden = Boolean(state.user));
+  if (state.user) {
+    $('#profile-name').textContent = `${state.user.name} さん`;
+    $('#profile-email').textContent = state.user.email;
+    $$('[data-pref]').forEach((input) => input.checked = Boolean(state.user.preferences?.[input.dataset.pref]));
   }
+  renderRestock();
 }
 
-document.querySelector('#logout-button').addEventListener('click', () => {
-  localStorage.removeItem(accountKey);
-  updateAuth();
-  showToast('ログアウトしました。');
-});
+$$('[data-pref]').forEach((input) => input.addEventListener('change', async () => {
+  if (!state.user) return;
+  const preferences = Object.fromEntries($$('[data-pref]').map((item) => [item.dataset.pref, item.checked]));
+  try {
+    const result = await api('auth/preferences', { method: 'PUT', body: JSON.stringify(preferences) });
+    state.user.preferences = result.preferences;
+    notify('通知設定を保存しました。');
+  } catch (error) { input.checked = !input.checked; notify(error.message); }
+}));
 
-const preferences = JSON.parse(localStorage.getItem('luxPrefs') || '{}');
-document.querySelectorAll('[data-pref]').forEach((input) => {
-  if (input.dataset.pref in preferences) input.checked = preferences[input.dataset.pref];
-  input.addEventListener('change', () => {
-    const next = {};
-    document.querySelectorAll('[data-pref]').forEach((item) => { next[item.dataset.pref] = item.checked; });
-    localStorage.setItem('luxPrefs', JSON.stringify(next));
-    showToast('通知設定を保存しました。');
-  });
-});
-
-const pushState = document.querySelector('#push-state');
-const pushButton = document.querySelector('#enable-push');
-
-function updatePush() {
-  if (!('Notification' in window)) {
-    pushState.textContent = 'このブラウザは通知機能に対応していません。';
-    pushButton.disabled = true;
-    return;
-  }
-  pushState.textContent = Notification.permission === 'granted'
-    ? 'この端末では通知が許可されています。'
-    : Notification.permission === 'denied'
-      ? '端末またはブラウザ設定で通知が拒否されています。'
-      : 'まだ通知を許可していません。';
-  pushButton.disabled = Notification.permission === 'denied';
-  pushButton.textContent = Notification.permission === 'granted'
-    ? 'テスト通知を表示'
-    : Notification.permission === 'denied'
-      ? '端末設定で変更してください'
-      : '通知を許可する';
+async function loadRestock() {
+  if (!state.user) { state.restock = []; renderRestock(); return; }
+  try { state.restock = (await api('restock')).requests; } catch (error) { notify(error.message); }
+  renderRestock();
 }
-
-pushButton.addEventListener('click', async () => {
-  if (!('Notification' in window)) return;
-  const permission = Notification.permission === 'default'
-    ? await Notification.requestPermission()
-    : Notification.permission;
-  updatePush();
-  if (permission === 'granted') {
-    const registration = await navigator.serviceWorker?.ready;
-    registration?.showNotification('Lux Canis', {
-      body: '通知設定が完了しました。新作や再販情報をここで受け取れます。',
-      icon: './icon.svg',
-    });
-    showToast('テスト通知を表示しました。');
-  }
-});
 
 function renderRestock() {
-  const list = document.querySelector('#restock-list');
-  const items = JSON.parse(localStorage.getItem('luxRestock') || '[]');
-  if (!items.length) {
-    list.innerHTML = '<div class="empty-card"><strong>再販待ちの商品はありません</strong><p>売り切れ商品の詳細ページから登録できます。</p><a class="button button-primary" href="./index.html#items">商品を見る</a></div>';
-    return;
-  }
-  const imageMap = { 'tiny-drop': 'item-04.webp' };
-  list.innerHTML = items.map((item) => `<article class="restock-item"><img src="./assets/${imageMap[item.id] || 'item-04.webp'}" alt=""><div><strong>${item.name}</strong><p>${item.color} / 再販待ち登録中</p></div><button type="button" data-remove="${item.id}">登録を解除</button></article>`).join('');
-  list.querySelectorAll('[data-remove]').forEach((button) => button.addEventListener('click', () => {
-    localStorage.setItem('luxRestock', JSON.stringify(items.filter((item) => item.id !== button.dataset.remove)));
-    renderRestock();
-    showToast('再販通知を解除しました。');
+  const root = $('#restock-list');
+  if (!state.user) { root.innerHTML = '<div class="account-empty"><strong>ログインすると再販待ちを確認できます</strong><a class="button button-dark" href="#">ログイン・会員登録へ</a></div>'; root.querySelector('a').onclick = (event) => { event.preventDefault(); showView('profile'); }; return; }
+  root.innerHTML = state.restock.length ? state.restock.map((item) => `<article class="restock-item"><img src="${esc(item.images?.[0] || '/icon.svg')}" alt=""><div><strong>${esc(item.product_name)}</strong><p>${esc(item.color || 'カラー指定なし')} / ${new Date(item.created_at).toLocaleDateString('ja-JP')} 登録</p></div><button type="button" data-remove-restock="${esc(item.id)}">解除</button></article>`).join('') : '<div class="account-empty"><strong>再販待ちの商品はありません</strong><a class="button button-dark" href="./index.html#items">商品を見る</a></div>';
+  $$('[data-remove-restock]').forEach((button) => button.addEventListener('click', async () => {
+    try { await api(`restock/${button.dataset.removeRestock}`, { method: 'DELETE', body: '{}' }); await loadRestock(); notify('再販待ちを解除しました。'); } catch (error) { notify(error.message); }
   }));
 }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
-updateAuth();
-updatePush();
-renderRestock();
-showView(location.hash.slice(1), { syncHash: false });
+function renderNotices() {
+  const label = { news: 'NEW', restock: '再販', color: '新色', important: '重要' };
+  $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'NEWS'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
+}
+
+async function init() {
+  try {
+    const [me, notices] = await Promise.all([api('auth/me'), api('notices')]);
+    state.user = me.user;
+    state.notices = notices.notices;
+    renderAccount(); renderNotices(); await loadRestock();
+  } catch (error) { notify(error.message); renderAccount(); }
+  showView(location.hash.slice(1), false);
+}
+init();

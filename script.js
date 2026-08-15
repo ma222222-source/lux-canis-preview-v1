@@ -1,87 +1,66 @@
-const header = document.querySelector('.site-header');
-const menuButton = document.querySelector('.menu-button');
-const menu = document.querySelector('#site-menu');
-const scrim = document.querySelector('.menu-scrim');
-const toast = document.querySelector('#toast');
-const productCards = [...document.querySelectorAll('.product-card')];
-const filterButtons = [...document.querySelectorAll('.filter-button')];
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const header = $('.site-header');
+const menuButton = $('.menu-button');
+const menu = $('#site-menu');
+const scrim = $('.menu-scrim');
+const toast = $('#toast');
+const productGrid = $('.product-grid');
+const filterButtons = $$('.filter-button');
+let products = [];
+let activeFilter = 'all';
 let toastTimer;
 
-const products = [
-  { id: 'color-mix', category: 'ear', status: 'new', material: 'ガラスビーズ / 金具' },
-  { id: 'forest-drop', category: 'ear', status: 'low', material: 'ガラスビーズ / 金具' },
-  { id: 'soft-aurora', category: 'ear', status: 'new', material: 'ガラスビーズ / 金具' },
-  { id: 'tiny-drop', category: 'ear', status: 'sold', material: 'ガラスビーズ / 雫パーツ' },
-  { id: 'mini-hoop', category: 'ear', status: '', material: 'ガラスビーズ / 金具' },
-  { id: 'long-beads', category: 'ear', status: 'low', material: 'ガラスビーズ / 金具' }
-];
-
-const emptyState = document.createElement('div');
-emptyState.className = 'catalog-empty';
-emptyState.hidden = true;
-emptyState.innerHTML = '<p class="kicker">COMING SOON</p><h3>ブレスレットは準備中です</h3><p>新しい商品写真が揃い次第、こちらに追加します。</p>';
-document.querySelector('.product-grid').insertAdjacentElement('afterend', emptyState);
+const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+const yen = (value) => Number(value) > 0 ? `¥${Number(value).toLocaleString('ja-JP')}` : '価格未設定';
+const statusLabel = { new: 'NEW', low: '残りわずか', sold: 'SOLD OUT' };
 
 window.addEventListener('scroll', () => header?.classList.toggle('scrolled', window.scrollY > 8), { passive: true });
-document.querySelector('#year').textContent = new Date().getFullYear();
-document.querySelector('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="./admin.html" rel="nofollow">管理画面（確認用）</a>');
+$('#year').textContent = new Date().getFullYear();
+$('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="./admin.html" rel="nofollow">運営管理</a>');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
-function showToast(message) {
-  clearTimeout(toastTimer);
-  toast.textContent = message;
-  toast.classList.add('show');
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-function openMenu() {
-  menu.classList.add('is-open');
-  menu.setAttribute('aria-hidden', 'false');
-  menuButton.setAttribute('aria-expanded', 'true');
-  scrim.hidden = false;
-  document.body.classList.add('menu-open');
-  document.querySelector('.menu-close').focus();
-}
-
-function closeMenu() {
-  menu.classList.remove('is-open');
-  menu.setAttribute('aria-hidden', 'true');
-  menuButton.setAttribute('aria-expanded', 'false');
-  scrim.hidden = true;
-  document.body.classList.remove('menu-open');
-}
-
+function showToast(message) { clearTimeout(toastTimer); toast.textContent = message; toast.classList.add('show'); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
+function openMenu() { menu.classList.add('is-open'); menu.setAttribute('aria-hidden', 'false'); menuButton.setAttribute('aria-expanded', 'true'); scrim.hidden = false; document.body.classList.add('menu-open'); $('.menu-close').focus(); }
+function closeMenu() { menu.classList.remove('is-open'); menu.setAttribute('aria-hidden', 'true'); menuButton.setAttribute('aria-expanded', 'false'); scrim.hidden = true; document.body.classList.remove('menu-open'); }
 menuButton?.addEventListener('click', openMenu);
-document.querySelectorAll('[data-menu-close]').forEach((element) => element.addEventListener('click', closeMenu));
+$$('[data-menu-close]').forEach((element) => element.addEventListener('click', closeMenu));
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
 
-function applyFilter(filter) {
-  filterButtons.forEach((button) => {
-    const active = button.dataset.filter === filter;
-    button.classList.toggle('is-active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-  productCards.forEach((card, index) => {
-    card.hidden = filter !== 'all' && products[index].category !== filter;
-  });
-  emptyState.hidden = productCards.some(card => !card.hidden);
+function renderProducts() {
+  const visible = products.filter((product) => activeFilter === 'all' || product.category === activeFilter);
+  if (!visible.length) {
+    productGrid.innerHTML = '<div class="catalog-empty"><p class="kicker">COMING SOON</p><h3>このカテゴリの商品は準備中です</h3><p>新しい商品が公開されると、こちらに表示されます。</p></div>';
+    return;
+  }
+  productGrid.innerHTML = visible.map((product) => {
+    const image = product.images?.[0] || '/icon.svg';
+    const badge = statusLabel[product.status] ? `<span class="product-badge product-badge-${esc(product.status)}">${statusLabel[product.status]}</span>` : '';
+    const color = product.colors?.slice(0, 3).join(' / ') || 'Color variation';
+    return `<article class="product-card"><a class="product-open" href="./product.html?id=${encodeURIComponent(product.id)}" aria-label="${esc(product.name)}の商品詳細を見る"><span class="product-image">${badge}<img src="${esc(image)}" alt="${esc(product.name)}の商品写真" loading="lazy"></span><span class="product-meta"><span><strong>${esc(product.name)}</strong><small>${esc(color)}</small></span><span class="price">${yen(product.price)}</span></span><span class="product-facts"><span>カラー ${esc(color)}</span><span>素材 ${esc(product.material || '未設定')}</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></a></article>`;
+  }).join('');
 }
 
+function applyFilter(filter) {
+  activeFilter = filter;
+  filterButtons.forEach((button) => { const active = button.dataset.filter === filter; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); });
+  renderProducts();
+}
 filterButtons.forEach((button) => button.addEventListener('click', () => applyFilter(button.dataset.filter)));
-document.querySelectorAll('[data-filter-link]').forEach((link) => link.addEventListener('click', () => applyFilter(link.dataset.filterLink)));
+$$('[data-filter-link]').forEach((link) => link.addEventListener('click', () => applyFilter(link.dataset.filterLink)));
 
-productCards.forEach((card, index) => {
-  const product = products[index];
-  const image = card.querySelector('.product-image');
-  const meta = card.querySelector('.product-meta');
-  const labels = { new: 'NEW', low: '残りわずか', sold: 'SOLD OUT' };
-  if (product.status) image.insertAdjacentHTML('afterbegin', `<span class="product-badge product-badge-${product.status}">${labels[product.status]}</span>`);
-  meta.insertAdjacentHTML('afterend', `<span class="product-facts"><span>カラー ${card.dataset.color}</span><span>素材 ${product.material}</span></span>`);
-  card.querySelector('.product-open').addEventListener('click', () => {
-    window.location.href = `./product.html?id=${product.id}`;
-  });
-});
+$$('.demo-action, .pseudo-mercari').forEach((button) => button.addEventListener('click', () => showToast(button.dataset.message || '販売URLは現在未設定です。')));
 
-document.querySelectorAll('.demo-action, .pseudo-mercari').forEach((button) => {
-  button.addEventListener('click', () => showToast(button.dataset.message || '販売URLは現在未設定です。'));
-});
+async function loadProducts() {
+  productGrid.setAttribute('aria-busy', 'true');
+  try {
+    const response = await fetch('/api/products', { credentials: 'same-origin' });
+    if (!response.ok) throw new Error('商品を取得できませんでした。');
+    products = (await response.json()).products;
+    renderProducts();
+  } catch (error) {
+    console.error(error);
+    showToast('商品情報を読み込めませんでした。時間をおいてお試しください。');
+  } finally { productGrid.setAttribute('aria-busy', 'false'); }
+}
+loadProducts();

@@ -1,7 +1,7 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#fbfaf6"><meta name="description" content="Lux Canisへのお問い合わせ"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./contact.css"><script defer src="./contact.js"></script><title>お問い合わせ | Lux Canis</title></head>
 <body><header class="contact-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">CONTACT</span></a><a href="./index.html">トップへ戻る</a></header>
 <main class="contact-shell">
-  <div class="contact-intro"><p class="kicker">CONTACT</p><h1>お問い合わせ</h1><p>商品について気になることがあれば、お気軽にご連絡ください。</p><div class="demo-caution"><strong>プレビュー版について</strong><p>入力内容は外部に送信されず、この端末内の管理画面にだけ表示されます。</p></div></div>
+  <div class="contact-intro"><p class="kicker">CONTACT</p><h1>お問い合わせ</h1><p>商品について気になることがあれば、お気軽にご連絡ください。</p><div class="demo-caution"><strong>送信後について</strong><p>入力内容はLux Canisの運営管理画面へ保存されます。メールでの自動返信は現在準備中です。</p></div></div>
   <section class="contact-panel" aria-live="polite">
     <ol class="stepper" aria-label="お問い合わせの進行"><li class="is-active" data-step-label="input">1 入力</li><li data-step-label="confirm">2 確認</li><li data-step-label="complete">3 完了</li></ol>
     <form id="contact-form" novalidate>
@@ -12,8 +12,8 @@
         <label><span>お問い合わせ内容 <em>必須</em></span><textarea name="message" rows="7" required></textarea><small class="field-error"></small></label>
         <button class="button button-dark" type="button" id="to-confirm">内容を確認する</button>
       </div>
-      <div class="contact-step" id="step-confirm"><h2>この内容で受付しますか？</h2><dl class="confirm-list"><div><dt>お名前</dt><dd data-confirm="name"></dd></div><div><dt>メールアドレス</dt><dd data-confirm="email"></dd></div><div><dt>種類</dt><dd data-confirm="type"></dd></div><div><dt>内容</dt><dd data-confirm="message"></dd></div></dl><div class="form-actions"><button class="button button-dark" type="submit">確認用に受付する</button><button class="button button-outline" type="button" data-back>修正する</button></div></div>
-      <div class="contact-step complete-card" id="step-complete"><span class="complete-mark" aria-hidden="true">✓</span><h2>確認用データを保存しました</h2><p>この端末内の管理画面に反映されました。実際のメールは送信されていません。</p><div class="form-actions"><a class="button button-dark" href="./index.html#items">商品を見る</a><a class="button button-outline" href="./index.html">トップへ戻る</a></div></div>
+      <div class="contact-step" id="step-confirm"><h2>この内容で送信しますか？</h2><dl class="confirm-list"><div><dt>お名前</dt><dd data-confirm="name"></dd></div><div><dt>メールアドレス</dt><dd data-confirm="email"></dd></div><div><dt>種類</dt><dd data-confirm="type"></dd></div><div><dt>内容</dt><dd data-confirm="message"></dd></div></dl><div class="form-actions"><button class="button button-dark" type="submit">問い合わせを送信する</button><button class="button button-outline" type="button" data-back>修正する</button></div></div>
+      <div class="contact-step complete-card" id="step-complete"><span class="complete-mark" aria-hidden="true">✓</span><h2>お問い合わせを受け付けました</h2><p>運営管理画面へ送信しました。内容を確認後、ご入力いただいたメールアドレスへご連絡します。</p><div class="form-actions"><a class="button button-dark" href="./index.html#items">商品を見る</a><a class="button button-outline" href="./index.html">トップへ戻る</a></div></div>
     </form>
   </section>
 </main></body></html>

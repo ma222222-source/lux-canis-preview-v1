@@ -1,45 +1,9 @@
-const CACHE = 'lux-canis-v4';
-const ASSETS = [
-  './',
-  './index.html',
-  './styles.css',
-  './script.js',
-  './product.html',
-  './product.css',
-  './product.js',
-  './account.html',
-  './account.css',
-  './account-polish.css',
-  './account.js',
-  './contact.html',
-  './contact.css',
-  './contact.js',
-  './admin.html',
-  './admin.css',
-  './admin.js',
-  './manifest.webmanifest',
-  './icon.svg',
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(
-    keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)),
-  )));
-});
-
+const CACHE = 'lux-canis-v5';
+const CORE = ['./','./index.html','./styles.css','./script.js','./product.html','./product.css','./product.js','./account.html','./account.css','./account-polish.css','./visibility.css','./account.js','./contact.html','./contact.css','./contact.js','./icon.svg','./manifest.webmanifest'];
+self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting())));
+self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-        return response;
-      })
-      .catch(() => caches.match(event.request)),
-  );
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/') || event.request.method !== 'GET') return;
+  event.respondWith(fetch(event.request).then((response) => { const copy = response.clone(); caches.open(CACHE).then((cache) => cache.put(event.request, copy)); return response; }).catch(() => caches.match(event.request).then((cached) => cached || caches.match('./index.html'))));
 });

@@ -1,4 +1,17 @@
-# Lux Canis Preview v1
+# Lux Canis Preview v5
+
+Cloudflare Pages Functions・D1・R2を使った運営対応版です。商品、写真、価格、公開状態、お知らせ、会員、問い合わせ、再販希望を共通データとして保存します。
+
+## 運営画面
+
+- `/admin.html` から管理者ログイン
+- 商品の追加・編集・削除、写真アップロード、公開切り替え
+- お知らせの追加・削除
+- 会員、問い合わせ、再販希望の確認
+
+管理者パスワードはCloudflareの `ADMIN_PASSWORD` シークレットで管理し、ソースコードには保存しません。
+
+公開前に `node scripts/build-static.mjs` を実行し、`dist` をCloudflare Pagesへデプロイします。
 
 Lux Canis（ルクス・カニス）の商品紹介・メルカリ誘導用デモサイトです。
 

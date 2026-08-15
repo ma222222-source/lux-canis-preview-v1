@@ -1,7 +1,120 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f3f1ec"><meta name="description" content="Lux Canis管理画面プレビュー"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./admin.css"><script defer src="./admin.js"></script><title>Lux Canis 管理画面プレビュー</title></head><body class="admin-body"><header class="admin-header"><div><strong>Lux Canis</strong><span>管理画面プレビュー</span></div><a href="./index.html">お客様サイトを見る ↗</a></header><main class="admin-shell"><aside class="admin-nav"><button class="is-active" data-admin-view="dashboard">今日の確認</button><button data-admin-view="contacts">お問い合わせ</button><button data-admin-view="restock">再販リクエスト</button><button data-admin-view="products">商品管理</button><button data-admin-view="notices">お知らせを送る</button></aside><div class="admin-content">
-<section class="admin-view is-active" id="admin-dashboard"><p class="admin-eyebrow">DASHBOARD</p><h1>今日の確認</h1><div class="admin-demo-note">確認用フォームと再販待ちの内容が、この端末内だけで反映されます。</div><div class="metric-grid"><article><span>新しいお問い合わせ</span><strong id="metric-contacts">0</strong><button data-jump="contacts">確認する</button></article><article><span>再販リクエスト</span><strong id="metric-restock">0</strong><button data-jump="restock">確認する</button></article><article><span>公開商品</span><strong>6</strong><button data-jump="products">確認する</button></article></div></section>
-<section class="admin-view" id="admin-contacts"><p class="admin-eyebrow">CONTACTS</p><h1>お問い合わせ</h1><div id="admin-contact-list"></div></section>
-<section class="admin-view" id="admin-restock"><p class="admin-eyebrow">RESTOCK</p><h1>再販リクエスト</h1><div id="admin-restock-list"></div></section>
-<section class="admin-view" id="admin-products"><p class="admin-eyebrow">PRODUCTS</p><h1>商品管理</h1><div class="admin-table"><div class="admin-row admin-row-head"><span>商品</span><span>表示状態</span><span>公開</span></div><div class="admin-row"><span>Color Mix</span><select><option>NEW</option><option>販売中</option><option>残りわずか</option><option>SOLD OUT</option></select><label><input type="checkbox" checked> 公開</label></div><div class="admin-row"><span>Tiny Drop</span><select><option>SOLD OUT</option><option>販売中</option><option>NEW</option></select><label><input type="checkbox" checked> 公開</label></div></div><button class="admin-primary" data-demo-save>変更を保存</button></section>
-<section class="admin-view" id="admin-notices"><p class="admin-eyebrow">NOTICES</p><h1>お知らせを送る</h1><form class="admin-form"><label>種類<select><option>新作</option><option>再販</option><option>新色</option></select></label><label>タイトル<input value="新作が入荷しました"></label><label>本文<textarea rows="5">新しいアクセサリーがLux Canisに仲間入りしました。</textarea></label><fieldset><legend>送信方法</legend><label><input type="checkbox" checked> サイト内のお知らせ</label><label><input type="checkbox"> プッシュ通知（未接続）</label><label><input type="checkbox"> メール通知（未接続）</label></fieldset><button class="admin-primary" type="button" data-demo-send>送信内容を確認する</button></form></section>
-</div></main><div class="toast" id="toast" role="status" aria-live="polite"></div></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f2ec">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Lux Canis 管理画面">
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="stylesheet" href="./visibility.css">
+  <script defer src="./admin.js"></script>
+  <title>運営管理 | Lux Canis</title>
+</head>
+<body>
+  <div class="login-gate" id="login-gate">
+    <form class="login-card" id="admin-login-form">
+      <span class="brand-mark">LC</span>
+      <p class="eyebrow">LUX CANIS OPERATIONS</p>
+      <h1>管理者ログイン</h1>
+      <p>商品の編集やお知らせの配信を行う運営専用画面です。</p>
+      <label>パスワード
+        <span class="password-field"><input id="admin-password" type="password" inputmode="numeric" autocomplete="current-password" required autofocus><button type="button" id="toggle-admin-password">表示</button></span>
+      </label>
+      <p class="form-error" id="login-error" role="alert"></p>
+      <button class="button button-primary" type="submit">ログイン</button>
+      <a href="./index.html">お客様向けサイトへ戻る</a>
+    </form>
+  </div>
+
+  <div class="admin-app" id="admin-app" hidden>
+    <header class="admin-header">
+      <a class="admin-brand" href="./index.html"><strong>Lux Canis</strong><span>運営管理</span></a>
+      <div class="header-actions"><span class="save-state" id="save-state" aria-live="polite">同期済み</span><button class="button button-ghost" id="admin-logout" type="button">ログアウト</button></div>
+    </header>
+    <div class="admin-layout">
+      <nav class="admin-nav" aria-label="管理メニュー">
+        <button class="is-active" data-view="dashboard"><span>概要</span><small>今日の確認</small></button>
+        <button data-view="products"><span>商品</span><small>写真・価格・公開</small></button>
+        <button data-view="notices"><span>お知らせ</span><small>新作・再販情報</small></button>
+        <button data-view="customers"><span>会員</span><small>登録者一覧</small></button>
+        <button data-view="contacts"><span>問い合わせ</span><small>対応状況</small></button>
+        <button data-view="restock"><span>再販希望</span><small>商品別の希望者</small></button>
+      </nav>
+
+      <main class="admin-content">
+        <section class="admin-view is-active" id="view-dashboard">
+          <div class="view-heading"><div><p class="eyebrow">DASHBOARD</p><h1>運営状況</h1><p>公開サイトと同じデータをリアルタイムに確認できます。</p></div><button class="button button-primary" data-new-product type="button">商品を追加</button></div>
+          <div class="metric-grid" id="metric-grid" aria-busy="true"></div>
+          <section class="panel next-actions"><h2>次に確認すること</h2><div id="action-list"></div></section>
+        </section>
+
+        <section class="admin-view" id="view-products">
+          <div class="view-heading"><div><p class="eyebrow">PRODUCTS</p><h1>商品管理</h1><p>写真・価格・在庫表示・説明・公開状態を編集できます。</p></div><button class="button button-primary" data-new-product type="button">商品を追加</button></div>
+          <div class="toolbar"><label class="search-field"><span>商品を検索</span><input id="product-search" type="search" placeholder="商品名で検索"></label><span id="product-count"></span></div>
+          <div class="product-admin-list" id="product-admin-list" aria-live="polite"></div>
+        </section>
+
+        <section class="admin-view" id="view-notices">
+          <div class="view-heading"><div><p class="eyebrow">NOTICES</p><h1>お知らせ管理</h1><p>追加すると、会員ページのお知らせ欄へすぐ反映されます。</p></div></div>
+          <div class="split-layout">
+            <form class="panel admin-form" id="notice-form">
+              <h2>新しいお知らせ</h2>
+              <label>種類<select name="type"><option value="news">新作・ニュース</option><option value="restock">再販</option><option value="color">新色</option><option value="important">重要</option></select></label>
+              <label>タイトル<input name="title" maxlength="120" required></label>
+              <label>本文<textarea name="body" rows="6" maxlength="2000" required></textarea></label>
+              <label>関連商品<select name="productId" id="notice-product"><option value="">指定なし</option></select></label>
+              <label class="check-row"><input name="published" type="checkbox" checked>すぐに公開する</label>
+              <button class="button button-primary" type="submit">お知らせを追加</button>
+            </form>
+            <div><h2 class="list-title">公開履歴</h2><div class="stack-list" id="notice-admin-list"></div></div>
+          </div>
+        </section>
+
+        <section class="admin-view" id="view-customers">
+          <div class="view-heading"><div><p class="eyebrow">CUSTOMERS</p><h1>会員一覧</h1><p>登録者と通知希望を確認できます。パスワードは管理者にも表示されません。</p></div></div>
+          <div class="data-table" id="customer-list"></div>
+        </section>
+
+        <section class="admin-view" id="view-contacts">
+          <div class="view-heading"><div><p class="eyebrow">CONTACTS</p><h1>問い合わせ</h1><p>未対応・対応中・完了を切り替えて管理できます。</p></div></div>
+          <div class="stack-list" id="contact-list"></div>
+        </section>
+
+        <section class="admin-view" id="view-restock">
+          <div class="view-heading"><div><p class="eyebrow">RESTOCK</p><h1>再販希望</h1><p>会員が登録した商品・カラー・連絡先を確認できます。</p></div></div>
+          <div class="data-table" id="restock-admin-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="product-editor" id="product-editor" aria-labelledby="editor-title">
+    <form id="product-form">
+      <header><div><p class="eyebrow">PRODUCT EDITOR</p><h2 id="editor-title">商品を追加</h2></div><button class="icon-button" type="button" data-close-editor aria-label="閉じる">×</button></header>
+      <div class="editor-body">
+        <input type="hidden" name="id">
+        <div class="image-editor">
+          <div class="image-preview-grid" id="image-preview-grid"></div>
+          <label class="upload-card"><input id="product-images" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple><strong>写真を追加</strong><span>1枚5MB以下・最大12枚</span></label>
+        </div>
+        <div class="form-grid">
+          <label class="span-2">商品名<input name="name" maxlength="100" required></label>
+          <label>価格（円）<input name="price" type="number" min="0" max="10000000" step="1" value="0"></label>
+          <label>並び順<input name="sortOrder" type="number" step="1" value="0"></label>
+          <label>カテゴリ<select name="category"><option value="ear">ピアス・イヤリング</option><option value="bracelet">ブレスレット</option><option value="other">その他</option></select></label>
+          <label>在庫表示<select name="status"><option value="available">販売中</option><option value="new">NEW</option><option value="low">残りわずか</option><option value="sold">SOLD OUT</option></select></label>
+          <label class="span-2">カラー（カンマ区切り）<input name="colors" placeholder="Pink, Blue, Clear"></label>
+          <label>素材<input name="material" maxlength="200"></label>
+          <label>金具タイプ<input name="fitting" maxlength="200"></label>
+          <label class="span-2">商品説明<textarea name="description" rows="5" maxlength="2000"></textarea></label>
+          <label class="span-2">販売URL（後から設定可）<input name="salesUrl" type="url" maxlength="500" placeholder="https://..."></label>
+          <label class="check-row span-2"><input name="published" type="checkbox" checked>お客様向けサイトに公開する</label>
+        </div>
+      </div>
+      <footer><button class="button button-danger" id="delete-product" type="button" hidden>この商品を削除</button><span></span><button class="button button-ghost" type="button" data-close-editor>キャンセル</button><button class="button button-primary" type="submit">保存して反映</button></footer>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

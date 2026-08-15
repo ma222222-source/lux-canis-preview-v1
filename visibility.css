@@ -1,0 +1,8 @@
+[hidden]{display:none!important}
+.product-admin-row{grid-template-columns:76px minmax(180px,1fr) 130px 115px 86px 62px}
+@media(max-width:1050px){.product-admin-row{grid-template-columns:70px minmax(180px,1fr) 110px 70px 62px}}
+@media(max-width:760px){.product-admin-row{grid-template-columns:64px minmax(0,1fr) auto}.admin-nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;overflow:visible!important;position:static!important}.admin-nav button{min-width:0!important;text-align:center!important}}
+.password-input{display:grid!important;grid-template-columns:minmax(0,1fr) auto}
+.password-input input{border-radius:9px 0 0 9px!important}
+.password-input button{min-width:62px;border-radius:0 9px 9px 0!important}
+@media(max-width:620px){.account-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;overflow:visible!important}.account-nav button{width:100%!important;min-width:0!important}}

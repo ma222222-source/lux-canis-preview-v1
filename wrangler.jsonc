@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "lux-canis-preview-v1",
+  "compatibility_date": "2026-08-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lux-canis-data",
+      "database_id": "e3f81218-57ac-40aa-9e8a-fdf04e3c0fbb"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PRODUCT_IMAGES",
+      "bucket_name": "lux-canis-product-images"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
