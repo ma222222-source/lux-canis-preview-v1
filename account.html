@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbfaf6"><meta name="description" content="Lux Canisのマイページ・通知設定デモ">
+  <link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./account.css">
+  <script defer src="./account.js"></script><title>マイページ | Lux Canis</title>
+</head>
+<body>
+  <header class="app-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">MY PAGE</span></a><a class="app-back" href="./index.html">トップへ戻る</a></header>
+  <main class="account-shell">
+    <aside class="account-nav" aria-label="マイページメニュー"><button class="is-active" data-view="profile">マイページ</button><button data-view="notifications">通知設定</button><button data-view="restock">再販待ち</button><button data-view="notices">お知らせ</button></aside>
+    <div class="account-content">
+      <section class="account-view is-active" id="view-profile" aria-labelledby="profile-title">
+        <p class="kicker">MY PAGE</p><h1 id="profile-title">こんにちは。</h1>
+        <div class="demo-banner"><strong>V3デモ</strong><p>入力内容はこの端末内だけに保存されます。サーバーへの会員登録はまだ行いません。</p></div>
+        <div id="signed-out">
+          <div class="auth-tabs"><button class="is-active" data-auth="register">無料で登録</button><button data-auth="login">ログイン</button></div>
+          <form class="app-form" id="account-form" novalidate>
+            <label><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" required><small class="field-error"></small></label>
+            <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" required><small class="field-error"></small></label>
+            <label><span>パスワード <em>必須</em></span><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="8" required><small>8文字以上で入力してください。</small><small class="field-error"></small></label>
+            <button class="button button-dark" type="submit" id="account-submit">無料で登録する</button>
+          </form>
+        </div>
+        <div id="signed-in" hidden><div class="profile-card"><span class="profile-avatar" aria-hidden="true">LC</span><div><strong id="profile-name"></strong><p id="profile-email"></p></div></div><div class="profile-actions"><a href="./index.html#items">商品を見る</a><button type="button" id="logout-button">ログアウト</button></div></div>
+      </section>
+      <section class="account-view" id="view-notifications" aria-labelledby="notification-title">
+        <p class="kicker">SETTINGS</p><h1 id="notification-title">通知設定</h1><p class="view-lede">受け取りたいお知らせを選べます。設定はこの端末に保存されます。</p>
+        <div class="setting-list">
+          <label class="switch-row"><span><strong>新作のお知らせ</strong><small>新しいアクセサリーが追加されたとき</small></span><input type="checkbox" data-pref="newItems" checked><i></i></label>
+          <label class="switch-row"><span><strong>再販のお知らせ</strong><small>再販待ちの商品が入荷したとき</small></span><input type="checkbox" data-pref="restock" checked><i></i></label>
+          <label class="switch-row"><span><strong>新しいカラー</strong><small>新色が追加されたとき</small></span><input type="checkbox" data-pref="newColors" checked><i></i></label>
+          <label class="switch-row"><span><strong>メール通知</strong><small>登録メールアドレスへの通知（送信基盤は未接続）</small></span><input type="checkbox" data-pref="email"><i></i></label>
+        </div>
+        <div class="push-card"><span class="push-icon" aria-hidden="true">●</span><div><strong>この端末のプッシュ通知</strong><p id="push-state">通知の状態を確認しています。</p></div><button class="button button-primary" id="enable-push" type="button">通知を許可する</button></div>
+      </section>
+      <section class="account-view" id="view-restock" aria-labelledby="restock-title"><p class="kicker">RESTOCK</p><h1 id="restock-title">再販待ち</h1><div id="restock-list"></div></section>
+      <section class="account-view" id="view-notices" aria-labelledby="notices-title"><p class="kicker">NOTICES</p><h1 id="notices-title">お知らせ</h1><div class="notice-list"><article><span>NEW</span><div><strong>新作が入荷しました</strong><p>「Soft Aurora」が仲間入りしました。</p><time>デモ表示</time></div></article><article><span>再販</span><div><strong>お待たせしました</strong><p>再販通知はここに届く想定です。</p><time>デモ表示</time></div></article></div></section>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>

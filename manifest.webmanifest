@@ -1,0 +1,12 @@
+{
+  "name": "Lux Canis",
+  "short_name": "Lux Canis",
+  "description": "ハンドメイドアクセサリー Lux Canis",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fbfaf6",
+  "theme_color": "#fbfaf6",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

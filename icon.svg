@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lux Canis">
+  <rect width="512" height="512" rx="104" fill="#fbfaf6"/>
+  <circle cx="256" cy="256" r="174" fill="none" stroke="#171713" stroke-width="10"/>
+  <path d="M154 167v176h102v-22h-76V167h-26Zm204 41c-18-22-42-34-70-34-48 0-84 37-84 83 0 47 36 84 84 84 29 0 53-12 71-35l-20-14c-13 17-29 25-49 25-33 0-57-26-57-60 0-33 24-59 57-59 20 0 36 8 49 24l19-14Z" fill="#171713"/>
+</svg>

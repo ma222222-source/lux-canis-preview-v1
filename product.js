@@ -46,8 +46,14 @@ product.colors.forEach(([label,file], index) => {
 selectImage(product.images[0], product.colors[0][0]);
 
 if (product.status === 'sold') {
-  document.querySelector('#detail-actions').innerHTML = '<div class="sold-panel"><strong>現在こちらの商品は売り切れています</strong><p>再販されたときにお知らせを受け取れます。</p><button class="button button-dark demo-action" type="button" data-message="再販通知を登録しました（デモ）。">再販通知を受け取る</button></div>';
+  document.querySelector('#detail-actions').innerHTML = '<div class="sold-panel"><strong>現在こちらの商品は売り切れています</strong><p>再販されたときにお知らせを受け取れます。</p><button class="button button-dark restock-action" type="button">再販通知を受け取る</button></div>';
 }
 
 function showToast(message) { clearTimeout(toastTimer); toast.textContent = message; toast.classList.add('show'); toastTimer = setTimeout(()=>toast.classList.remove('show'),3200); }
 document.querySelectorAll('.demo-action').forEach(button => button.addEventListener('click', () => showToast(button.dataset.message)));
+document.querySelector('.restock-action')?.addEventListener('click', () => {
+  const restock = JSON.parse(localStorage.getItem('luxRestock') || '[]');
+  if (!restock.some(item => item.id === id)) restock.push({ id, name: product.name, color: product.colors[0][0], registeredAt: new Date().toISOString() });
+  localStorage.setItem('luxRestock', JSON.stringify(restock));
+  showToast('再販待ちに登録しました。マイページで確認できます。');
+});

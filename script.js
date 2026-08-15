@@ -24,6 +24,8 @@ document.querySelector('.product-grid').insertAdjacentElement('afterend', emptyS
 
 window.addEventListener('scroll', () => header?.classList.toggle('scrolled', window.scrollY > 8), { passive: true });
 document.querySelector('#year').textContent = new Date().getFullYear();
+document.querySelector('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="./admin.html">管理画面デモ</a>');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
 function showToast(message) {
   clearTimeout(toastTimer);
