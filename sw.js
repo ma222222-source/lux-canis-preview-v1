@@ -1,5 +1,5 @@
-const CACHE = 'lux-canis-v5';
-const CORE = ['./','./index.html','./styles.css','./script.js','./product.html','./product.css','./product.js','./account.html','./account.css','./account-polish.css','./visibility.css','./account.js','./contact.html','./contact.css','./contact.js','./icon.svg','./manifest.webmanifest'];
+const CACHE = 'lux-canis-v6';
+const CORE = ['./','./index.html','./styles.css','./script.js','./product.html','./product.css','./product-enhancements.css','./product.js','./account.html','./account.css','./account-polish.css','./visibility.css','./account.js','./contact.html','./contact.css','./contact.js','./icon.svg','./manifest.webmanifest'];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (event) => {

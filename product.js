@@ -11,7 +11,14 @@ let toastTimer;
 
 const yen = (value) => Number(value) > 0 ? `¥${Number(value).toLocaleString('ja-JP')}` : '価格未設定';
 function notify(message) { clearTimeout(toastTimer); toast.textContent = message; toast.classList.add('show'); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
-function selectImage(url, label) { mainImage.src = url; mainImage.alt = `${product.name} ${label}の商品写真`; $$('[data-image]').forEach((button) => button.classList.toggle('is-active', button.dataset.image === url)); }
+function selectImage(url, label) {
+  mainImage.classList.add('is-changing');
+  mainImage.src = url;
+  mainImage.alt = `${product.name} ${label}の商品写真`;
+  $$('[data-image]').forEach((button) => button.classList.toggle('is-active', button.dataset.image === url));
+  if (mainImage.complete) requestAnimationFrame(() => mainImage.classList.remove('is-changing'));
+}
+mainImage.addEventListener('load', () => mainImage.classList.remove('is-changing'));
 
 function render() {
   document.title = `${product.name} | Lux Canis`;
@@ -20,15 +27,19 @@ function render() {
   $('#detail-description').textContent = product.description || '商品説明は準備中です。';
   $('#detail-material').textContent = product.material || '未設定';
   $('#detail-fitting').textContent = product.fitting || '未設定';
+  const stock = Number(product.stockQuantity || 0);
+  $('#detail-stock').textContent = product.status === 'sold' ? '在庫なし' : stock > 0 ? `${stock}点` : '受注制作・在庫確認中';
+  $('#detail-stock').className = product.status === 'sold' ? 'detail-stock-none' : stock <= 1 ? 'detail-stock-low' : '';
   const label = { new: 'NEW', low: '残りわずか', sold: 'SOLD OUT' }[product.status] || '';
   $('#detail-status').textContent = label; $('#detail-status').hidden = !label;
   thumbnails.innerHTML = '';
   const images = product.images?.length ? product.images : ['/icon.svg'];
   images.forEach((url, index) => { const button = document.createElement('button'); button.type = 'button'; button.dataset.image = url; button.setAttribute('aria-label', `商品写真${index + 1}を見る`); button.innerHTML = `<img src="${url}" alt="" loading="lazy">`; button.addEventListener('click', () => selectImage(url, `写真${index + 1}`)); thumbnails.append(button); });
   colors.innerHTML = '';
-  (product.colors?.length ? product.colors : ['カラー指定なし']).forEach((labelText, index) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = labelText; button.setAttribute('aria-pressed', String(index === 0)); button.addEventListener('click', () => { selectedColor = labelText; $$('#color-options button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); }); colors.append(button); });
-  selectedColor = product.colors?.[0] || '';
-  selectImage(images[0], 'メイン');
+  const variants = product.variants?.length ? product.variants : (product.colors?.length ? product.colors.map((name, index) => ({ name, image: images[index] || images[0] })) : [{ name: 'カラー指定なし', image: images[0] }]);
+  variants.forEach((variant, index) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = variant.name; button.setAttribute('aria-pressed', String(index === 0)); button.addEventListener('click', () => { selectedColor = variant.name; $$('#color-options button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); selectImage(variant.image || images[0], variant.name); }); colors.append(button); });
+  selectedColor = variants[0]?.name || '';
+  selectImage(variants[0]?.image || images[0], variants[0]?.name || 'メイン');
   const actions = $('#detail-actions');
   if (product.status === 'sold') actions.innerHTML = '<div class="sold-panel"><strong>現在こちらの商品は売り切れています</strong><p>再販されたときに確認できるよう、再販待ちへ登録できます。</p><button class="button button-dark" id="restock-action" type="button">再販待ちへ登録</button></div>';
   else if (product.salesUrl) actions.innerHTML = `<a class="button button-dark" href="${product.salesUrl}" target="_blank" rel="noopener noreferrer">販売ページで見る・購入する →</a>`;

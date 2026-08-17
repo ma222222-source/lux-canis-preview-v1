@@ -38,9 +38,10 @@ const upload = await call('images', { method: 'POST', cookie: adminCookie, form:
 ok(upload.response.status === 201 && upload.data.url, '商品写真をアップロード');
 ok((await fetch(`${base}${upload.data.url}`)).ok, 'アップロード画像を取得');
 
-const created = await call('products', { method: 'POST', cookie: adminCookie, body: { name: '動作確認商品', price: 1980, category: 'other', colors: ['Test'], material: 'Test', fitting: 'Test', description: 'Smoke test', status: 'available', published: true, images: [upload.data.url], sortOrder: 9999 } });
+const created = await call('products', { method: 'POST', cookie: adminCookie, body: { name: '動作確認商品', price: 1980, stockQuantity: 2, category: 'other', variants: [{ name: 'Test', image: upload.data.url }], material: 'Test', fitting: 'Test', description: 'Smoke test', status: 'available', published: true, images: [upload.data.url], sortOrder: 9999 } });
 ok(created.response.status === 201, '商品を追加');
 const productId = created.data.product.id;
+ok(created.data.product.variants[0].image === upload.data.url && created.data.product.stockQuantity === 2, 'カラー写真と在庫数を保存');
 const updated = await call(`products/${productId}`, { method: 'PUT', cookie: adminCookie, body: { ...created.data.product, name: '動作確認商品 更新済み', images: [] } });
 ok(updated.response.ok && updated.data.product.name.includes('更新済み'), '商品を編集');
 ok((await fetch(`${base}${upload.data.url}`)).status === 404, '削除した商品写真を画像保存から除去');

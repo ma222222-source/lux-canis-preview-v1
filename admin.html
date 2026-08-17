@@ -100,11 +100,13 @@
         </div>
         <div class="form-grid">
           <label class="span-2">商品名<input name="name" maxlength="100" required></label>
-          <label>価格（円）<input name="price" type="number" min="0" max="10000000" step="1" value="0"></label>
-          <label>並び順<input name="sortOrder" type="number" step="1" value="0"></label>
+          <label>価格（円）<input name="price" type="number" inputmode="numeric" min="0" max="10000000" step="1" value="0"></label>
+          <label>在庫数<input name="stockQuantity" type="number" inputmode="numeric" min="0" max="100000" step="1" value="0"><small>内部管理と商品詳細に表示されます</small></label>
           <label>カテゴリ<select name="category"><option value="ear">ピアス・イヤリング</option><option value="bracelet">ブレスレット</option><option value="other">その他</option></select></label>
           <label>在庫表示<select name="status"><option value="available">販売中</option><option value="new">NEW</option><option value="low">残りわずか</option><option value="sold">SOLD OUT</option></select></label>
-          <label class="span-2">カラー（カンマ区切り）<input name="colors" placeholder="Pink, Blue, Clear"></label>
+          <label>並び順<input name="sortOrder" type="number" inputmode="numeric" step="1" value="0"></label>
+          <span></span>
+          <fieldset class="variant-fieldset span-2"><legend>カラーごとの写真</legend><p>カラー名と、そのカラーを押したときに表示する写真を組み合わせます。</p><div class="variant-editor" id="variant-editor"></div><button class="button button-ghost" id="add-variant" type="button">カラーを追加</button></fieldset>
           <label>素材<input name="material" maxlength="200"></label>
           <label>金具タイプ<input name="fitting" maxlength="200"></label>
           <label class="span-2">商品説明<textarea name="description" rows="5" maxlength="2000"></textarea></label>

@@ -89,24 +89,42 @@ function cleanEmail(value) {
   return email;
 }
 
+function cleanUrl(value) {
+  const text = cleanText(value, 500);
+  if (!text) return '';
+  try {
+    const url = new URL(text);
+    if (!['https:', 'http:'].includes(url.protocol)) throw new Error();
+    return url.toString();
+  } catch {
+    throw new Error('販売URLは http または https で始まる正しいURLを入力してください。');
+  }
+}
+
 function parseList(value, maxItems = 12) {
   const list = Array.isArray(value) ? value : [];
   return list.slice(0, maxItems).map((item) => cleanText(item, 500)).filter(Boolean);
 }
 
 function mapProduct(row) {
+  const images = JSON.parse(row.images || '[]');
+  const colors = JSON.parse(row.colors || '[]');
+  const savedVariants = JSON.parse(row.variants || '[]');
+  const variants = savedVariants.length ? savedVariants : colors.map((name, index) => ({ name, image: images[index] || images[0] || '' }));
   return {
     id: row.id,
     name: row.name,
     price: row.price,
     category: row.category,
-    colors: JSON.parse(row.colors || '[]'),
+    colors: variants.map((variant) => variant.name),
+    variants,
     material: row.material,
     fitting: row.fitting,
     description: row.description,
     status: row.status,
     published: Boolean(row.published),
-    images: JSON.parse(row.images || '[]'),
+    images,
+    stockQuantity: Number(row.stock_quantity || 0),
     salesUrl: row.sales_url,
     sortOrder: row.sort_order,
     createdAt: row.created_at,
@@ -152,18 +170,35 @@ function productInput(data) {
   const category = ['ear', 'bracelet', 'other'].includes(data.category) ? data.category : 'other';
   const price = Number(data.price);
   const sortOrder = Number(data.sortOrder);
+  const stockQuantity = Number(data.stockQuantity);
+  const images = parseList(data.images, 12);
+  const fallbackColors = parseList(data.colors, 20);
+  const rawVariants = Array.isArray(data.variants) ? data.variants : fallbackColors.map((name, index) => ({ name, image: images[index] || images[0] || '' }));
+  const seenNames = new Set();
+  const variants = rawVariants.slice(0, 20).map((variant) => {
+    const name = cleanText(variant?.name, 100);
+    const requestedImage = cleanText(variant?.image, 500);
+    return { name, image: images.includes(requestedImage) ? requestedImage : images[0] || '' };
+  }).filter((variant) => {
+    const key = variant.name.toLocaleLowerCase('ja');
+    if (!variant.name || seenNames.has(key)) return false;
+    seenNames.add(key);
+    return true;
+  });
   return {
     name: cleanText(data.name, 100, true),
     price: Number.isInteger(price) && price >= 0 && price <= 10000000 ? price : 0,
     category,
-    colors: parseList(data.colors, 20),
+    colors: variants.map((variant) => variant.name),
+    variants,
     material: cleanText(data.material, 200),
     fitting: cleanText(data.fitting, 200),
     description: cleanText(data.description, 2000),
     status,
     published: data.published === false ? 0 : 1,
-    images: parseList(data.images, 12),
-    salesUrl: cleanText(data.salesUrl, 500),
+    images,
+    stockQuantity: Number.isInteger(stockQuantity) && stockQuantity >= 0 && stockQuantity <= 100000 ? stockQuantity : 0,
+    salesUrl: cleanUrl(data.salesUrl),
     sortOrder: Number.isInteger(sortOrder) ? sortOrder : 0
   };
 }
@@ -314,8 +349,8 @@ async function handleProducts(context, path) {
     const input = productInput(await readJson(request));
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    await env.DB.prepare(`INSERT INTO products (id, name, price, category, colors, material, fitting, description, status, published, images, sales_url, sort_order, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(id, input.name, input.price, input.category, JSON.stringify(input.colors), input.material, input.fitting, input.description, input.status, input.published, JSON.stringify(input.images), input.salesUrl, input.sortOrder, now, now).run();
+    await env.DB.prepare(`INSERT INTO products (id, name, price, category, colors, variants, material, fitting, description, status, published, images, stock_quantity, sales_url, sort_order, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(id, input.name, input.price, input.category, JSON.stringify(input.colors), JSON.stringify(input.variants), input.material, input.fitting, input.description, input.status, input.published, JSON.stringify(input.images), input.stockQuantity, input.salesUrl, input.sortOrder, now, now).run();
     const row = await env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(id).first();
     return json({ ok: true, product: mapProduct(row) }, 201);
   }
@@ -324,8 +359,8 @@ async function handleProducts(context, path) {
   if (!current) return fail('商品が見つかりません。', 404, 'NOT_FOUND');
   if (request.method === 'PUT') {
     const input = productInput(await readJson(request));
-    await env.DB.prepare(`UPDATE products SET name = ?, price = ?, category = ?, colors = ?, material = ?, fitting = ?, description = ?, status = ?, published = ?, images = ?, sales_url = ?, sort_order = ?, updated_at = ? WHERE id = ?`)
-      .bind(input.name, input.price, input.category, JSON.stringify(input.colors), input.material, input.fitting, input.description, input.status, input.published, JSON.stringify(input.images), input.salesUrl, input.sortOrder, new Date().toISOString(), path[1]).run();
+    await env.DB.prepare(`UPDATE products SET name = ?, price = ?, category = ?, colors = ?, variants = ?, material = ?, fitting = ?, description = ?, status = ?, published = ?, images = ?, stock_quantity = ?, sales_url = ?, sort_order = ?, updated_at = ? WHERE id = ?`)
+      .bind(input.name, input.price, input.category, JSON.stringify(input.colors), JSON.stringify(input.variants), input.material, input.fitting, input.description, input.status, input.published, JSON.stringify(input.images), input.stockQuantity, input.salesUrl, input.sortOrder, new Date().toISOString(), path[1]).run();
     const oldImages = JSON.parse(current.images || '[]');
     const removedKeys = oldImages.filter((url) => !input.images.includes(url)).map(r2KeyFromUrl).filter(Boolean);
     if (removedKeys.length) await env.PRODUCT_IMAGES.delete(removedKeys);

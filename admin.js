@@ -1,4 +1,4 @@
-const state = { products: [], notices: [], contacts: [], customers: [], restock: [], metrics: {}, images: [], editingId: null };
+const state = { products: [], notices: [], contacts: [], customers: [], restock: [], metrics: {}, images: [], variants: [], pendingFiles: new Map(), editingId: null, editorDirty: false };
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const app = $('#admin-app');
@@ -125,6 +125,7 @@ function renderMetrics() {
   if (state.metrics.contacts) actions.push(['未対応の問い合わせがあります', `${state.metrics.contacts}件`]);
   if (state.products.some((item) => item.price === 0)) actions.push(['価格未設定の商品があります', `${state.products.filter((item) => item.price === 0).length}件`]);
   if (state.products.some((item) => !item.images.length)) actions.push(['写真のない商品があります', `${state.products.filter((item) => !item.images.length).length}件`]);
+  if (state.products.some((item) => item.status !== 'sold' && item.stockQuantity === 0)) actions.push(['販売中で在庫0の商品があります', `${state.products.filter((item) => item.status !== 'sold' && item.stockQuantity === 0).length}件`]);
   $('#action-list').innerHTML = actions.length ? actions.map(([label, count]) => `<div class="action-row"><strong>${label}</strong><span>${count}</span></div>`).join('') : '<div class="action-row"><strong>現在、優先対応はありません</strong><span>良好</span></div>';
 }
 
@@ -135,7 +136,7 @@ function renderProducts() {
   $('#product-count').textContent = `${list.length}件`;
   $('#product-admin-list').innerHTML = list.length ? list.map((product) => `<article class="product-admin-row">
     <img class="admin-thumb" src="${esc(product.images[0] || '/icon.svg')}" alt="">
-    <div class="product-copy"><strong>${esc(product.name)}</strong><small>${esc(product.category === 'ear' ? 'ピアス・イヤリング' : product.category === 'bracelet' ? 'ブレスレット' : 'その他')}</small></div>
+    <div class="product-copy"><strong>${esc(product.name)}</strong><small>${esc(product.category === 'ear' ? 'ピアス・イヤリング' : product.category === 'bracelet' ? 'ブレスレット' : 'その他')} ・ 在庫${Number(product.stockQuantity || 0)}点</small></div>
     <strong class="price-cell">${yen(product.price)}</strong><span class="status-pill ${esc(product.status)}">${statusLabel(product.status)}</span>
     <span class="${product.published ? 'published' : 'unpublished'}">${product.published ? '公開中' : '非公開'}</span>
     <div class="row-actions"><button class="icon-button" type="button" data-edit-product="${esc(product.id)}" aria-label="${esc(product.name)}を編集">編集</button></div>
@@ -178,20 +179,34 @@ function renderRestock() {
 }
 
 $$('[data-new-product]').forEach((button) => button.addEventListener('click', () => openEditor()));
-$$('[data-close-editor]').forEach((button) => button.addEventListener('click', () => editor.close()));
-editor.addEventListener('click', (event) => { if (event.target === editor) editor.close(); });
+$$('[data-close-editor]').forEach((button) => button.addEventListener('click', requestCloseEditor));
+editor.addEventListener('click', (event) => { if (event.target === editor) requestCloseEditor(); });
+
+function discardPendingImages() {
+  for (const url of state.pendingFiles.keys()) URL.revokeObjectURL(url);
+  state.pendingFiles.clear();
+}
+
+function requestCloseEditor() {
+  if (state.editorDirty && !confirm('保存していない変更があります。閉じてもよろしいですか？')) return;
+  discardPendingImages();
+  state.editorDirty = false;
+  editor.close();
+}
 
 function openEditor(product = null) {
   state.editingId = product?.id || null;
   state.images = [...(product?.images || [])];
+  discardPendingImages();
+  state.variants = (product?.variants?.length ? product.variants : (product?.colors || []).map((name, index) => ({ name, image: state.images[index] || state.images[0] || '' }))).map((variant) => ({ ...variant }));
   productForm.reset();
   productForm.elements.id.value = product?.id || '';
   productForm.elements.name.value = product?.name || '';
   productForm.elements.price.value = product?.price ?? 0;
+  productForm.elements.stockQuantity.value = product?.stockQuantity ?? 0;
   productForm.elements.sortOrder.value = product?.sortOrder ?? state.products.length * 10 + 10;
   productForm.elements.category.value = product?.category || 'ear';
   productForm.elements.status.value = product?.status || 'available';
-  productForm.elements.colors.value = (product?.colors || []).join(', ');
   productForm.elements.material.value = product?.material || '';
   productForm.elements.fitting.value = product?.fitting || '';
   productForm.elements.description.value = product?.description || '';
@@ -201,23 +216,65 @@ function openEditor(product = null) {
   $('#delete-product').hidden = !product;
   $('#product-images').value = '';
   renderImagePreviews();
+  renderVariantEditor();
+  state.editorDirty = false;
   editor.showModal();
 }
 
 function renderImagePreviews() {
-  $('#image-preview-grid').innerHTML = state.images.map((url, index) => `<figure class="image-preview"><img src="${esc(url)}" alt="商品写真${index + 1}"><button type="button" data-remove-image="${index}" aria-label="写真${index + 1}を削除">×</button></figure>`).join('');
-  $$('[data-remove-image]').forEach((button) => button.addEventListener('click', () => { state.images.splice(Number(button.dataset.removeImage), 1); renderImagePreviews(); }));
+  $('#image-preview-grid').innerHTML = state.images.map((url, index) => `<figure class="image-preview"><img src="${esc(url)}" alt="商品写真${index + 1}"><span class="image-number">${index === 0 ? 'メイン写真' : `写真${index + 1}`}</span><div class="image-preview-actions">${index > 0 ? `<button class="photo-action" type="button" data-make-cover="${index}">メインにする</button>` : ''}<button class="photo-action is-danger" type="button" data-remove-image="${index}">削除</button></div></figure>`).join('');
+  $$('[data-remove-image]').forEach((button) => button.addEventListener('click', () => {
+    const index = Number(button.dataset.removeImage);
+    const removed = state.images[index];
+    if (state.pendingFiles.has(removed)) { URL.revokeObjectURL(removed); state.pendingFiles.delete(removed); }
+    state.images.splice(index, 1);
+    state.variants.forEach((variant) => { if (variant.image === removed) variant.image = state.images[0] || ''; });
+    state.editorDirty = true; renderImagePreviews(); renderVariantEditor();
+  }));
+  $$('[data-make-cover]').forEach((button) => button.addEventListener('click', () => {
+    const index = Number(button.dataset.makeCover);
+    const [image] = state.images.splice(index, 1); state.images.unshift(image);
+    state.editorDirty = true; renderImagePreviews(); renderVariantEditor();
+  }));
 }
 
-async function uploadImages() {
-  const files = [...$('#product-images').files];
-  if (state.images.length + files.length > 12) throw new Error('商品写真は最大12枚です。');
+function renderVariantEditor() {
+  const root = $('#variant-editor');
+  const imageOptions = state.images.map((url, index) => `<option value="${esc(url)}">${index === 0 ? 'メイン写真' : `写真${index + 1}`}</option>`).join('');
+  root.innerHTML = state.variants.length ? state.variants.map((variant, index) => `<div class="variant-row"><label>カラー名<input data-variant-name="${index}" value="${esc(variant.name)}" maxlength="100" placeholder="例：Pink"></label><label>表示する写真<select data-variant-image="${index}" ${state.images.length ? '' : 'disabled'}>${state.images.length ? imageOptions : '<option>先に写真を追加してください</option>'}</select></label><button class="variant-remove" type="button" data-remove-variant="${index}" aria-label="このカラーを削除">削除</button></div>`).join('') : '<p class="variant-empty">カラーがある商品は「カラーを追加」から登録してください。</p>';
+  $$('[data-variant-image]').forEach((select) => { select.value = state.variants[Number(select.dataset.variantImage)].image || state.images[0] || ''; select.addEventListener('change', () => { state.variants[Number(select.dataset.variantImage)].image = select.value; state.editorDirty = true; }); });
+  $$('[data-variant-name]').forEach((input) => input.addEventListener('input', () => { state.variants[Number(input.dataset.variantName)].name = input.value; state.editorDirty = true; }));
+  $$('[data-remove-variant]').forEach((button) => button.addEventListener('click', () => { state.variants.splice(Number(button.dataset.removeVariant), 1); state.editorDirty = true; renderVariantEditor(); }));
+}
+
+$('#add-variant').addEventListener('click', () => { state.variants.push({ name: '', image: state.images[0] || '' }); state.editorDirty = true; renderVariantEditor(); $('#variant-editor input:last-of-type')?.focus(); });
+
+$('#product-images').addEventListener('change', (event) => {
+  const files = [...event.target.files];
+  if (state.images.length + files.length > 12) { notify('商品写真は最大12枚です。'); event.target.value = ''; return; }
   for (const file of files) {
+    if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) { notify('JPG・PNG・WebP・GIFの5MB以下の画像を選択してください。'); continue; }
+    const url = URL.createObjectURL(file); state.pendingFiles.set(url, file); state.images.push(url);
+  }
+  if (!state.variants.length && state.images.length) state.variants.push({ name: '', image: state.images[0] });
+  state.editorDirty = true; event.target.value = ''; renderImagePreviews(); renderVariantEditor();
+});
+
+async function uploadImages() {
+  for (let index = 0; index < state.images.length; index += 1) {
+    const temporaryUrl = state.images[index];
+    const file = state.pendingFiles.get(temporaryUrl);
+    if (!file) continue;
     const form = new FormData(); form.append('file', file);
     const result = await api('images', { method: 'POST', body: form });
-    state.images.push(result.url);
+    state.images[index] = result.url;
+    state.variants.forEach((variant) => { if (variant.image === temporaryUrl) variant.image = result.url; });
+    URL.revokeObjectURL(temporaryUrl); state.pendingFiles.delete(temporaryUrl);
   }
 }
+
+productForm.addEventListener('input', () => { state.editorDirty = true; });
+productForm.addEventListener('change', () => { state.editorDirty = true; });
 
 productForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -227,20 +284,21 @@ productForm.addEventListener('submit', async (event) => {
     const data = Object.fromEntries(new FormData(productForm));
     const payload = {
       name: data.name, price: Number(data.price), sortOrder: Number(data.sortOrder), category: data.category, status: data.status,
-      colors: data.colors.split(',').map((item) => item.trim()).filter(Boolean), material: data.material, fitting: data.fitting,
+      stockQuantity: Number(data.stockQuantity), variants: state.variants.map((variant) => ({ name: variant.name.trim(), image: variant.image })).filter((variant) => variant.name), material: data.material, fitting: data.fitting,
       description: data.description, salesUrl: data.salesUrl, published: productForm.elements.published.checked, images: state.images
     };
     await api(state.editingId ? `products/${state.editingId}` : 'products', { method: state.editingId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+    state.editorDirty = false;
     editor.close();
     await loadAll();
     notify('商品を保存し、公開サイトへ反映しました。');
-  } catch (error) { notify(error.message); renderImagePreviews(); } finally { setBusy(productForm, false); }
+  } catch (error) { notify(error.message); renderImagePreviews(); renderVariantEditor(); } finally { setBusy(productForm, false); }
 });
 
 $('#delete-product').addEventListener('click', async () => {
   const product = state.products.find((item) => item.id === state.editingId);
   if (!product || !confirm(`「${product.name}」を完全に削除します。元に戻せません。よろしいですか？`)) return;
-  try { await api(`products/${product.id}`, { method: 'DELETE', body: '{}' }); editor.close(); await loadAll(); notify('商品を削除しました。'); } catch (error) { notify(error.message); }
+  try { await api(`products/${product.id}`, { method: 'DELETE', body: '{}' }); state.editorDirty = false; discardPendingImages(); editor.close(); await loadAll(); notify('商品を削除しました。'); } catch (error) { notify(error.message); }
 });
 
 $('#notice-form').addEventListener('submit', async (event) => {
