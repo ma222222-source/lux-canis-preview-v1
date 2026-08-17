@@ -287,6 +287,21 @@ async function handleAuth(context, path) {
     await env.DB.prepare('UPDATE users SET preferences = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(preferences), new Date().toISOString(), session.user_id).run();
     return json({ ok: true, preferences });
   }
+  if (request.method === 'DELETE' && action === 'account') {
+    const session = await requireSession(request, env, 'user');
+    const data = await readJson(request);
+    if (cleanText(data.confirmation, 20, true) !== '削除') return fail('確認欄に「削除」と入力してください。', 400, 'CONFIRMATION_REQUIRED');
+    const password = cleanText(data.password, 200, true);
+    const row = await env.DB.prepare('SELECT password_hash, password_salt FROM users WHERE id = ? AND active = 1').bind(session.user_id).first();
+    if (!row || !await safeEqual(await passwordHash(password, row.password_salt), row.password_hash)) return fail('現在のパスワードが違います。', 401, 'INVALID_CREDENTIALS');
+    await env.DB.batch([
+      env.DB.prepare('UPDATE contacts SET user_id = NULL WHERE user_id = ?').bind(session.user_id),
+      env.DB.prepare('DELETE FROM restock_requests WHERE user_id = ?').bind(session.user_id),
+      env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(session.user_id),
+      env.DB.prepare('DELETE FROM users WHERE id = ?').bind(session.user_id)
+    ]);
+    return json({ ok: true }, 200, { 'set-cookie': clearCookie(USER_COOKIE) });
+  }
   return fail('見つかりません。', 404, 'NOT_FOUND');
 }
 

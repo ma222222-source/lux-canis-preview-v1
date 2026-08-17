@@ -95,6 +95,67 @@ $('#logout-button').addEventListener('click', async () => {
   state.user = null; state.restock = []; renderAccount(); showView('profile'); notify('ログアウトしました。');
 });
 
+const deleteDialog = $('#delete-account-dialog');
+const deleteForm = $('#delete-account-form');
+function closeDeleteDialog() { if (deleteDialog.open) deleteDialog.close(); }
+$('#open-delete-account').addEventListener('click', () => {
+  deleteForm.reset();
+  $('#delete-account-error').textContent = '';
+  $('#delete-confirmation-error').textContent = '';
+  $('#delete-account-confirmation').setCustomValidity('');
+  deleteDialog.showModal();
+  document.body.classList.add('dialog-open');
+  $('#delete-account-password').focus();
+});
+$('#close-delete-account').addEventListener('click', closeDeleteDialog);
+$('#cancel-delete-account').addEventListener('click', closeDeleteDialog);
+deleteDialog.addEventListener('close', () => {
+  document.body.classList.remove('dialog-open');
+  deleteForm.reset();
+  $('#delete-account-password').type = 'password';
+  $('#toggle-delete-password').textContent = '表示';
+  $('#toggle-delete-password').setAttribute('aria-label', 'パスワードを表示');
+});
+deleteDialog.addEventListener('click', (event) => { if (event.target === deleteDialog) closeDeleteDialog(); });
+$('#toggle-delete-password').addEventListener('click', () => {
+  const input = $('#delete-account-password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  $('#toggle-delete-password').textContent = input.type === 'password' ? '表示' : '隠す';
+  $('#toggle-delete-password').setAttribute('aria-label', input.type === 'password' ? 'パスワードを表示' : 'パスワードを隠す');
+});
+$('#delete-account-confirmation').addEventListener('input', (event) => { event.currentTarget.setCustomValidity(''); $('#delete-confirmation-error').textContent = ''; });
+deleteForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const confirmation = $('#delete-account-confirmation');
+  confirmation.setCustomValidity('');
+  $('#delete-confirmation-error').textContent = '';
+  $('#delete-account-error').textContent = '';
+  if (confirmation.value !== '削除') {
+    confirmation.setCustomValidity('「削除」と入力してください。');
+    $('#delete-confirmation-error').textContent = '確認欄に「削除」と入力してください。';
+  }
+  if (!deleteForm.checkValidity()) { deleteForm.reportValidity(); return; }
+  const button = $('#confirm-delete-account');
+  button.disabled = true;
+  button.textContent = '削除中…';
+  try {
+    await api('auth/account', { method: 'DELETE', body: JSON.stringify({ password: $('#delete-account-password').value, confirmation: confirmation.value }) });
+    state.user = null;
+    state.restock = [];
+    closeDeleteDialog();
+    $('#account-form').reset();
+    renderAccount();
+    showView('profile');
+    notify('アカウントを削除しました。');
+  } catch (error) {
+    $('#delete-account-error').textContent = error.message;
+    if (error.status === 401) $('#delete-account-password').focus();
+  } finally {
+    button.disabled = false;
+    button.textContent = '完全に削除する';
+  }
+});
+
 function renderAccount() {
   $('#signed-out').hidden = Boolean(state.user);
   $('#signed-in').hidden = !state.user;
