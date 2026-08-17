@@ -122,11 +122,23 @@ function renderMetrics() {
   $('#metric-grid').innerHTML = labels.map(([key, label]) => `<article class="metric-card"><span>${label}</span><strong>${Number(state.metrics[key] || 0).toLocaleString('ja-JP')}</strong></article>`).join('');
   $('#metric-grid').setAttribute('aria-busy', 'false');
   const actions = [];
-  if (state.metrics.contacts) actions.push(['未対応の問い合わせがあります', `${state.metrics.contacts}件`]);
-  if (state.products.some((item) => item.price === 0)) actions.push(['価格未設定の商品があります', `${state.products.filter((item) => item.price === 0).length}件`]);
-  if (state.products.some((item) => !item.images.length)) actions.push(['写真のない商品があります', `${state.products.filter((item) => !item.images.length).length}件`]);
-  if (state.products.some((item) => item.status !== 'sold' && item.stockQuantity === 0)) actions.push(['販売中で在庫0の商品があります', `${state.products.filter((item) => item.status !== 'sold' && item.stockQuantity === 0).length}件`]);
-  $('#action-list').innerHTML = actions.length ? actions.map(([label, count]) => `<div class="action-row"><strong>${label}</strong><span>${count}</span></div>`).join('') : '<div class="action-row"><strong>現在、優先対応はありません</strong><span>良好</span></div>';
+  if (state.metrics.contacts) actions.push(`<div class="action-row"><div><strong>未対応の問い合わせがあります</strong><small>${state.metrics.contacts}件</small></div><button class="button button-ghost action-button" type="button" data-action-view="contacts">確認する</button></div>`);
+  state.products.forEach((item) => {
+    const issues = [];
+    if (item.price === 0) issues.push('価格');
+    if (!item.images.length) issues.push('写真');
+    if (item.status !== 'sold' && item.stockQuantity === 0) issues.push('在庫数');
+    if (!issues.length) return;
+    actions.push(`<div class="action-row"><div><strong>${esc(item.name)}</strong><small>${issues.join('・')}が未設定です</small></div><button class="button button-ghost action-button" type="button" data-fix-product="${esc(item.id)}">編集する</button></div>`);
+  });
+  $('#action-list').innerHTML = actions.length ? actions.join('') : '<div class="action-row action-good"><div><strong>現在、優先対応はありません</strong><small>公開準備は整っています</small></div><span>良好</span></div>';
+  $$('[data-action-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.actionView)));
+  $$('[data-fix-product]').forEach((button) => button.addEventListener('click', () => {
+    const product = state.products.find((item) => item.id === button.dataset.fixProduct);
+    if (!product) return;
+    showView('products');
+    openEditor(product);
+  }));
 }
 
 function statusLabel(status) { return ({ new: 'NEW', low: '残りわずか', sold: 'SOLD OUT', available: '販売中' })[status] || '販売中'; }
