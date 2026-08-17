@@ -7,6 +7,7 @@ const scrim = $('.menu-scrim');
 const toast = $('#toast');
 const productGrid = $('.product-grid');
 const filterButtons = $$('.filter-button');
+const menuBackground = [header, $('main'), $('.footer')].filter(Boolean);
 let products = [];
 let activeFilter = 'all';
 let toastTimer;
@@ -21,11 +22,41 @@ $('.footer')?.insertAdjacentHTML('beforeend', '<a class="admin-demo-link" href="
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
 function showToast(message) { clearTimeout(toastTimer); toast.textContent = message; toast.classList.add('show'); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
-function openMenu() { menu.classList.add('is-open'); menu.setAttribute('aria-hidden', 'false'); menuButton.setAttribute('aria-expanded', 'true'); scrim.hidden = false; document.body.classList.add('menu-open'); $('.menu-close').focus(); }
-function closeMenu() { menu.classList.remove('is-open'); menu.setAttribute('aria-hidden', 'true'); menuButton.setAttribute('aria-expanded', 'false'); scrim.hidden = true; document.body.classList.remove('menu-open'); }
+function openMenu() {
+  menu.classList.add('is-open');
+  menu.setAttribute('aria-hidden', 'false');
+  menuButton.setAttribute('aria-expanded', 'true');
+  scrim.hidden = false;
+  document.body.classList.add('menu-open');
+  setTimeout(() => {
+    $('.menu-close')?.focus();
+    menuBackground.forEach((element) => { element.inert = true; });
+  }, 0);
+}
+function closeMenu({ restoreFocus = true } = {}) {
+  if (!menu.classList.contains('is-open')) return;
+  menu.classList.remove('is-open');
+  menu.setAttribute('aria-hidden', 'true');
+  menuButton.setAttribute('aria-expanded', 'false');
+  scrim.hidden = true;
+  document.body.classList.remove('menu-open');
+  menuBackground.forEach((element) => { element.inert = false; });
+  if (restoreFocus) setTimeout(() => menuButton.focus(), 0);
+}
 menuButton?.addEventListener('click', openMenu);
-$$('[data-menu-close]').forEach((element) => element.addEventListener('click', closeMenu));
-document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+$$('[data-menu-close]').forEach((element) => element.addEventListener('click', () => closeMenu({ restoreFocus: element.tagName !== 'A' })));
+document.addEventListener('keydown', (event) => {
+  if (!menu.classList.contains('is-open')) return;
+  if (event.key === 'Escape') { event.preventDefault(); closeMenu(); return; }
+  if (event.key !== 'Tab') return;
+  const focusable = $$('a[href], button:not([disabled])', menu).filter((element) => !element.hidden && element.getClientRects().length);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (!menu.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+  else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 
 function renderProducts() {
   const visible = products.filter((product) => activeFilter === 'all' || product.category === activeFilter);
@@ -60,6 +91,8 @@ async function loadProducts() {
     renderProducts();
   } catch (error) {
     console.error(error);
+    productGrid.innerHTML = '<div class="catalog-empty"><p class="kicker">LOAD ERROR</p><h3>商品情報を読み込めませんでした</h3><p>通信状態をご確認のうえ、もう一度お試しください。</p><button class="button button-dark" id="retry-products" type="button">再読み込みする</button></div>';
+    $('#retry-products')?.addEventListener('click', loadProducts);
     showToast('商品情報を読み込めませんでした。時間をおいてお試しください。');
   } finally { productGrid.setAttribute('aria-busy', 'false'); }
 }
@@ -76,7 +109,8 @@ async function loadNotices() {
     root.innerHTML = notices.length ? notices.map((notice) => `<article class="home-notice-card"><div class="home-notice-meta"><span>${labels[notice.type] || 'NEWS'}</span><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time></div><div><h3>${esc(notice.title)}</h3><p>${esc(notice.body)}</p>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</div></article>`).join('') : '<div class="home-notice-empty">現在、新しいお知らせはありません。</div>';
   } catch (error) {
     console.error(error);
-    root.innerHTML = '<div class="home-notice-empty">お知らせを読み込めませんでした。</div>';
+    root.innerHTML = '<div class="home-notice-empty">お知らせを読み込めませんでした。<button class="button button-dark" id="retry-notices" type="button">再読み込みする</button></div>';
+    $('#retry-notices')?.addEventListener('click', loadNotices);
   } finally { root.setAttribute('aria-busy', 'false'); }
 }
 loadNotices();

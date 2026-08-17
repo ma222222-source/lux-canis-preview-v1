@@ -30,6 +30,9 @@ const adminLogin = await call('admin/login', { method: 'POST', body: { password:
 adminCookie = cookieFrom(adminLogin.response);
 ok(adminLogin.response.ok && adminCookie.startsWith('lux_admin_session='), '管理者ログイン');
 ok((await call('admin/overview', { cookie: adminCookie })).response.ok, '管理ダッシュボードを取得');
+const staleProducts = (await call('products?admin=1', { cookie: adminCookie })).data.products.filter((item) => item.name.startsWith('動作確認商品'));
+for (const item of staleProducts) await call(`products/${item.id}`, { method: 'DELETE', cookie: adminCookie, body: {} });
+ok(true, '前回中断した動作確認商品を整理');
 
 const png = Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64'));
 const uploadForm = new FormData();
@@ -47,7 +50,9 @@ ok(updated.response.ok && updated.data.product.name.includes('更新済み'), '�
 ok((await fetch(`${base}${upload.data.url}`)).status === 404, '削除した商品写真を画像保存から除去');
 
 const email = `smoke-${Date.now()}@example.com`;
-const registered = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234' } });
+const withoutConsent = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234' } });
+ok(withoutConsent.response.status === 400 && withoutConsent.data.error?.code === 'PRIVACY_CONSENT_REQUIRED', '同意なしの会員登録を拒否');
+const registered = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234', privacyConsent: true } });
 userCookie = cookieFrom(registered.response);
 ok(registered.response.status === 201 && userCookie.startsWith('lux_session='), '会員登録とログイン');
 ok((await call('auth/me', { cookie: userCookie })).data.user?.email === email, 'ログイン状態を取得');
@@ -69,7 +74,8 @@ ok((await call(`notices/${notice.data.id}`, { method: 'PUT', cookie: adminCookie
 ok((await call('notices')).data.notices.some((item) => item.id === notice.data.id && item.title === '更新したお知らせ' && item.type === 'restock'), '編集したお知らせを公開反映');
 ok((await call(`notices/${notice.data.id}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, 'お知らせを削除');
 ok((await call(`products/${productId}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, '商品を削除');
-ok((await call('auth/logout', { method: 'POST', cookie: userCookie, body: {} })).response.ok, '会員ログアウト');
+ok((await call('auth/account', { method: 'DELETE', cookie: userCookie, body: { password: 'test-pass-1234', confirmation: '削除' } })).response.ok, '動作確認会員を削除');
+ok((await call('auth/me', { cookie: userCookie })).data.user === null, '削除後の会員セッションを無効化');
 ok((await call('admin/logout', { method: 'POST', cookie: adminCookie, body: {} })).response.ok, '管理者ログアウト');
 
 console.log('All smoke tests passed.');

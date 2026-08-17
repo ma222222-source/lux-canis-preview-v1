@@ -11,6 +11,8 @@ document.querySelector('#to-confirm').addEventListener('click', () => {
 document.querySelector('[data-back]').addEventListener('click', () => showStep('input'));
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const submitError = document.querySelector('#contact-submit-error');
+  submitError.textContent = '';
   const button = form.querySelector('[type="submit"]'); button.disabled = true; button.textContent = '送信中…';
   try {
     const data = Object.fromEntries(new FormData(form));
@@ -18,5 +20,5 @@ form.addEventListener('submit', async (event) => {
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error?.message || '送信できませんでした。');
     showStep('complete'); form.reset();
-  } catch (error) { alert(error.message); } finally { button.disabled = false; button.textContent = '問い合わせを送信する'; }
+  } catch (error) { submitError.textContent = `${error.message} 入力内容は残っています。時間をおいて再度お試しください。`; } finally { button.disabled = false; button.textContent = '問い合わせを送信する'; }
 });

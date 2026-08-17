@@ -1,4 +1,4 @@
-const base = process.env.LUX_BASE_URL;
+const base = process.env.LUX_BASE_URL?.replace(/\/+$/, '');
 const password = process.env.LUX_ADMIN_PASSWORD;
 if (!base || !password) throw new Error('LUX_BASE_URL and LUX_ADMIN_PASSWORD are required.');
 

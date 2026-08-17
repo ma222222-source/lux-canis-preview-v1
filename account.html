@@ -17,14 +17,14 @@
   <header class="app-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">MY PAGE</span></a><a class="app-back" href="./index.html">トップへ戻る</a></header>
   <main class="account-shell">
     <aside class="account-nav" aria-label="マイページメニュー">
-      <button class="is-active" data-view="profile">マイページ</button><button data-view="notifications">通知設定</button><button data-view="restock">再販待ち</button><button data-view="notices">お知らせ</button>
+      <button class="is-active" data-view="profile" type="button">マイページ</button><button data-view="notifications" type="button">通知設定</button><button data-view="restock" type="button">再販待ち</button><button data-view="notices" type="button">お知らせ</button>
     </aside>
     <div class="account-content">
       <section class="account-view is-active" id="view-profile">
         <p class="kicker">MY PAGE</p><h1>こんにちは。</h1>
         <div id="signed-out">
           <p class="view-lede">会員登録すると、再販待ちや通知設定をどの端末からでも確認できます。</p>
-          <div class="auth-tabs"><button class="is-active" data-auth="register">無料で登録</button><button data-auth="login">ログイン</button></div>
+          <div class="auth-tabs"><button class="is-active" data-auth="register" type="button">無料で登録</button><button data-auth="login" type="button">ログイン</button></div>
           <form class="app-form" id="account-form" novalidate>
             <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
             <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>
