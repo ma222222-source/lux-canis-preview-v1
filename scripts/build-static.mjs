@@ -7,8 +7,8 @@ const output = resolve(root, 'dist');
 if (output !== join(root, 'dist')) throw new Error('Unexpected output directory.');
 
 const files = [
-  '_headers', 'index.html', 'product.html', 'account.html', 'contact.html', 'admin.html',
-  'styles.css', 'product.css', 'product-enhancements.css', 'account.css', 'account-polish.css', 'contact.css', 'admin.css', 'visibility.css',
+  '_headers', 'index.html', 'product.html', 'account.html', 'contact.html', 'guide.html', 'admin.html',
+  'styles.css', 'product.css', 'product-enhancements.css', 'account.css', 'account-polish.css', 'contact.css', 'guide.css', 'admin.css', 'visibility.css',
   'script.js', 'product.js', 'account.js', 'contact.js', 'admin.js', 'sw.js',
   'manifest.webmanifest', 'icon.svg'
 ];
