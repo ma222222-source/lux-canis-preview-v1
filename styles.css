@@ -263,6 +263,10 @@ button { color: inherit; }
 
 .footer { max-width: var(--max); margin: 0 auto; padding: 90px 28px 36px; display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 30px; color: var(--muted); }
 .footer p { margin: 0; font-size: .76rem; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: .74rem; }
+.footer-links a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color .2s ease; }
+.footer-links a:hover { text-decoration-color: currentColor; }
+.footer-links a:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .admin-demo-link { font-size: .7rem; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
 .footer-brand .brand-name { color: var(--ink); }
 .copyright { text-align: right; }

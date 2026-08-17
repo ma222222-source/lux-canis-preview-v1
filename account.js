@@ -4,6 +4,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const views = $$('.account-view');
 const nav = $$('.account-nav button');
 const toast = $('#toast');
+const PRIVACY_VERSION = '2026-08-17';
 let authMode = 'register';
 let toastTimer;
 
@@ -35,12 +36,16 @@ $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   $('#account-name').required = authMode === 'register';
   $('#password-confirm-field').hidden = authMode === 'login';
   $('#account-password-confirm').required = authMode === 'register';
+  $('#privacy-consent-field').hidden = authMode === 'login';
+  $('#privacy-consent').required = authMode === 'register';
   $('#account-password').autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
   $('#account-password-confirm').autocomplete = authMode === 'register' ? 'new-password' : 'off';
   $('#account-submit').textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
   $('#account-data-note').hidden = authMode === 'login';
   $('#password-confirm-error').textContent = '';
   $('#account-password-confirm').setCustomValidity('');
+  $('#privacy-consent-error').textContent = '';
+  $('#privacy-consent').setCustomValidity('');
   $('#auth-error').textContent = '';
 }));
 
@@ -52,20 +57,32 @@ $('#toggle-password').addEventListener('click', () => {
   $('#toggle-password').setAttribute('aria-label', input.type === 'password' ? 'パスワードを表示' : 'パスワードを隠す');
 });
 
+$('#privacy-consent').addEventListener('change', (event) => {
+  event.currentTarget.setCustomValidity('');
+  $('#privacy-consent-error').textContent = '';
+});
+
 $('#account-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   $('#auth-error').textContent = '';
   $('#password-confirm-error').textContent = '';
   $('#account-password-confirm').setCustomValidity('');
+  $('#privacy-consent-error').textContent = '';
+  $('#privacy-consent').setCustomValidity('');
   if (authMode === 'register' && $('#account-password').value !== $('#account-password-confirm').value) {
     $('#account-password-confirm').setCustomValidity('パスワードが一致しません。');
     $('#password-confirm-error').textContent = 'パスワードが一致しません。';
+  }
+  if (authMode === 'register' && !$('#privacy-consent').checked) {
+    $('#privacy-consent').setCustomValidity('プライバシーポリシーへの同意が必要です。');
+    $('#privacy-consent-error').textContent = '会員登録にはプライバシーポリシーへの同意が必要です。';
   }
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const button = $('#account-submit'); button.disabled = true; button.textContent = '処理中…';
   try {
     const payload = { name: $('#account-name').value, email: $('#account-email').value, password: $('#account-password').value };
+    if (authMode === 'register') Object.assign(payload, { privacyConsent: $('#privacy-consent').checked, privacyVersion: PRIVACY_VERSION });
     const result = await api(`auth/${authMode}`, { method: 'POST', body: JSON.stringify(payload) });
     state.user = result.user;
     form.reset(); renderAccount(); await loadRestock();

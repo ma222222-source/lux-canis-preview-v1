@@ -2,6 +2,7 @@ const USER_COOKIE = 'lux_session';
 const ADMIN_COOKIE = 'lux_admin_session';
 const USER_SESSION_DAYS = 30;
 const ADMIN_SESSION_HOURS = 8;
+const PRIVACY_VERSION = '2026-08-17';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Map([
   ['image/jpeg', 'jpg'],
@@ -241,6 +242,7 @@ async function handleAuth(context, path) {
   const action = path[1];
   if (request.method === 'POST' && action === 'register') {
     const data = await readJson(request);
+    if (data.privacyConsent !== true) return fail('会員登録にはプライバシーポリシーへの同意が必要です。', 400, 'PRIVACY_CONSENT_REQUIRED');
     const name = cleanText(data.name, 80, true);
     const email = cleanEmail(data.email);
     const password = cleanText(data.password, 200, true);
@@ -251,8 +253,9 @@ async function handleAuth(context, path) {
     const hash = await passwordHash(password, salt);
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    await env.DB.prepare('INSERT INTO users (id, name, email, password_hash, password_salt, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .bind(id, name, email, hash, salt, now, now).run();
+    const preferences = JSON.stringify({ newItems: true, restock: true, newColors: true, email: false, privacyAcceptedAt: now, privacyVersion: PRIVACY_VERSION });
+    await env.DB.prepare('INSERT INTO users (id, name, email, password_hash, password_salt, preferences, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(id, name, email, hash, salt, preferences, now, now).run();
     const session = await createSession(env, 'user', id);
     const row = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
     return json({ ok: true, user: publicUser(row) }, 201, { 'set-cookie': cookie(USER_COOKIE, session.token, session.seconds) });
@@ -279,9 +282,8 @@ async function handleAuth(context, path) {
   if (request.method === 'PUT' && action === 'preferences') {
     const session = await requireSession(request, env, 'user');
     const data = await readJson(request);
-    const preferences = {
-      newItems: Boolean(data.newItems), restock: Boolean(data.restock), newColors: Boolean(data.newColors), email: Boolean(data.email)
-    };
+    const previous = JSON.parse(session.preferences || '{}');
+    const preferences = { ...previous, newItems: Boolean(data.newItems), restock: Boolean(data.restock), newColors: Boolean(data.newColors), email: Boolean(data.email) };
     await env.DB.prepare('UPDATE users SET preferences = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(preferences), new Date().toISOString(), session.user_id).run();
     return json({ ok: true, preferences });
   }
