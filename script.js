@@ -64,3 +64,19 @@ async function loadProducts() {
   } finally { productGrid.setAttribute('aria-busy', 'false'); }
 }
 loadProducts();
+
+async function loadNotices() {
+  const root = $('#home-notice-list');
+  if (!root) return;
+  try {
+    const response = await fetch('/api/notices', { credentials: 'same-origin' });
+    if (!response.ok) throw new Error('お知らせを取得できませんでした。');
+    const notices = (await response.json()).notices.slice(0, 3);
+    const labels = { news: 'NEW', restock: '再販', color: '新色', important: '重要' };
+    root.innerHTML = notices.length ? notices.map((notice) => `<article class="home-notice-card"><div class="home-notice-meta"><span>${labels[notice.type] || 'NEWS'}</span><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time></div><div><h3>${esc(notice.title)}</h3><p>${esc(notice.body)}</p>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</div></article>`).join('') : '<div class="home-notice-empty">現在、新しいお知らせはありません。</div>';
+  } catch (error) {
+    console.error(error);
+    root.innerHTML = '<div class="home-notice-empty">お知らせを読み込めませんでした。</div>';
+  } finally { root.setAttribute('aria-busy', 'false'); }
+}
+loadNotices();

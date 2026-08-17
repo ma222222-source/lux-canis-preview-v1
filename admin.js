@@ -1,4 +1,4 @@
-const state = { products: [], notices: [], contacts: [], customers: [], restock: [], metrics: {}, images: [], variants: [], pendingFiles: new Map(), editingId: null, editorDirty: false };
+const state = { products: [], notices: [], contacts: [], customers: [], restock: [], metrics: {}, images: [], variants: [], pendingFiles: new Map(), editingId: null, editingNoticeId: null, editorDirty: false };
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const app = $('#admin-app');
@@ -163,10 +163,11 @@ $('#product-search').addEventListener('input', renderProducts);
 
 function renderNotices() {
   const typeLabel = { news: '新作', restock: '再販', color: '新色', important: '重要' };
-  $('#notice-admin-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article class="list-card"><header><div><span class="status-pill">${typeLabel[notice.type] || 'お知らせ'}</span><h3>${esc(notice.title)}</h3></div><button class="icon-button" type="button" data-delete-notice="${esc(notice.id)}" aria-label="削除">削除</button></header><p>${esc(notice.body)}</p><footer><span>${date(notice.created_at)}</span><span>${notice.published ? '公開中' : '下書き'}</span></footer></article>`).join('') : '<div class="empty-card">お知らせはまだありません。</div>';
+  $('#notice-admin-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article class="list-card"><header><div><span class="status-pill">${typeLabel[notice.type] || 'お知らせ'}</span><h3>${esc(notice.title)}</h3></div><div class="notice-row-actions"><button class="icon-button" type="button" data-edit-notice="${esc(notice.id)}" aria-label="${esc(notice.title)}を編集">編集</button><button class="icon-button" type="button" data-delete-notice="${esc(notice.id)}" aria-label="${esc(notice.title)}を削除">削除</button></div></header><p>${esc(notice.body)}</p><footer><span>${date(notice.created_at)}</span><span>${notice.published ? '公開中' : '下書き'}</span></footer></article>`).join('') : '<div class="empty-card">お知らせはまだありません。</div>';
+  $$('[data-edit-notice]').forEach((button) => button.addEventListener('click', () => editNotice(button.dataset.editNotice)));
   $$('[data-delete-notice]').forEach((button) => button.addEventListener('click', async () => {
     if (!confirm('このお知らせを削除しますか？')) return;
-    try { await api(`notices/${button.dataset.deleteNotice}`, { method: 'DELETE', body: '{}' }); await loadAll(); notify('お知らせを削除しました。'); } catch (error) { notify(error.message); }
+    try { await api(`notices/${button.dataset.deleteNotice}`, { method: 'DELETE', body: '{}' }); if (state.editingNoticeId === button.dataset.deleteNotice) resetNoticeForm(); await loadAll(); notify('お知らせを削除しました。'); } catch (error) { notify(error.message); }
   }));
 }
 
@@ -313,15 +314,44 @@ $('#delete-product').addEventListener('click', async () => {
   try { await api(`products/${product.id}`, { method: 'DELETE', body: '{}' }); state.editorDirty = false; discardPendingImages(); editor.close(); await loadAll(); notify('商品を削除しました。'); } catch (error) { notify(error.message); }
 });
 
+function resetNoticeForm() {
+  const form = $('#notice-form');
+  state.editingNoticeId = null;
+  form.reset();
+  form.elements.published.checked = true;
+  $('#notice-form-title').textContent = '新しいお知らせ';
+  $('#notice-submit').textContent = 'お知らせを追加';
+  $('#notice-cancel').hidden = true;
+}
+
+function editNotice(id) {
+  const notice = state.notices.find((item) => item.id === id);
+  if (!notice) return;
+  const form = $('#notice-form');
+  state.editingNoticeId = id;
+  form.elements.type.value = notice.type;
+  form.elements.title.value = notice.title;
+  form.elements.body.value = notice.body;
+  form.elements.productId.value = notice.product_id || '';
+  form.elements.published.checked = Boolean(notice.published);
+  $('#notice-form-title').textContent = 'お知らせを編集';
+  $('#notice-submit').textContent = '変更を保存';
+  $('#notice-cancel').hidden = false;
+  form.elements.title.focus();
+}
+
+$('#notice-cancel').addEventListener('click', resetNoticeForm);
+
 $('#notice-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   setBusy(form, true);
   try {
     const data = Object.fromEntries(new FormData(form));
-    await api('notices', { method: 'POST', body: JSON.stringify({ ...data, published: form.elements.published.checked }) });
-    form.reset(); form.elements.published.checked = true;
-    await loadAll(); notify('お知らせを追加しました。');
+    const editing = state.editingNoticeId;
+    await api(editing ? `notices/${editing}` : 'notices', { method: editing ? 'PUT' : 'POST', body: JSON.stringify({ ...data, published: form.elements.published.checked }) });
+    resetNoticeForm();
+    await loadAll(); notify(editing ? 'お知らせを更新しました。' : 'お知らせを追加しました。');
   } catch (error) { notify(error.message); } finally { setBusy(form, false); }
 });
 

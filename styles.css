@@ -439,6 +439,16 @@ body.menu-open { overflow: hidden; }
 .catalog-empty { padding: 70px 24px; border: 1px solid var(--line); border-radius: 24px; text-align: center; background: var(--paper); }
 .catalog-empty h3 { margin: 0; font: 500 clamp(1.8rem, 3vw, 3rem) "Yu Mincho", Georgia, serif; }
 .catalog-empty > p:last-child { margin: 14px 0 0; color: var(--muted); }
+.home-notices { padding-bottom: 0; }
+.home-notice-list { display: grid; border-top: 1px solid var(--line); }
+.home-notice-card { padding: 24px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 150px 1fr; gap: 28px; }
+.home-notice-meta { display: grid; align-content: start; gap: 8px; color: var(--muted); font-size: .72rem; }
+.home-notice-meta span { width: max-content; padding: 6px 10px; border-radius: 999px; background: var(--ink); color: #fff; font-size: .65rem; font-weight: 800; letter-spacing: .08em; }
+.home-notice-card h3 { margin: 0; font: 500 1.3rem/1.5 "Yu Mincho", Georgia, serif; }
+.home-notice-card p { margin: 8px 0 0; max-width: 760px; color: var(--muted); line-height: 1.8; white-space: pre-wrap; }
+.home-notice-card a { min-height: 44px; margin-top: 8px; display: inline-flex; align-items: center; font-size: .78rem; font-weight: 700; }
+.home-notice-loading,.home-notice-empty { padding: 34px 0; color: var(--muted); }
+.home-notice-more { margin-top: 28px; }
 .news-signup { max-width: calc(var(--max) - 56px); margin: 120px auto 0; padding: clamp(60px, 8vw, 100px) 28px; text-align: center; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper); }
 .news-signup h2 { margin: 0; font: 500 clamp(2.2rem, 4.5vw, 4.8rem)/1.28 "Yu Mincho", Georgia, serif; }
 .news-signup > p:not(.kicker) { max-width: 600px; margin: 22px auto 30px; color: var(--muted); }
@@ -448,6 +458,8 @@ body.menu-open { overflow: hidden; }
   .category-filters { margin-top: -12px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
   .filter-button { white-space: nowrap; }
   .product-facts { font-size: .72rem; }
+  .home-notice-card { grid-template-columns: 1fr; gap: 14px; padding: 22px 0; }
+  .home-notice-meta { grid-template-columns: auto 1fr; align-items: center; }
   .news-signup { margin: 70px 18px 0; padding: 64px 20px; border-radius: 28px; }
 }
 @media (max-width: 420px) { .menu-button { display: grid; } }

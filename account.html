@@ -29,6 +29,8 @@
             <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
             <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>
             <label><span>パスワード <em>必須</em></span><span class="password-input"><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><button type="button" id="toggle-password" aria-label="パスワードを表示">表示</button></span><small>8文字以上で入力してください。</small><small class="field-error"></small></label>
+            <label id="password-confirm-field"><span>パスワード（確認） <em>必須</em></span><input id="account-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><small class="field-error" id="password-confirm-error"></small></label>
+            <p class="account-data-note" id="account-data-note">メールアドレスはログインと通知設定の保存に使用します。現在、メールの自動配信は行いません。</p>
             <p class="auth-error" id="auth-error" role="alert"></p>
             <button class="button button-dark" type="submit" id="account-submit">無料で登録する</button>
           </form>

@@ -59,13 +59,13 @@
           <div class="view-heading"><div><p class="eyebrow">NOTICES</p><h1>お知らせ管理</h1><p>追加すると、会員ページのお知らせ欄へすぐ反映されます。</p></div></div>
           <div class="split-layout">
             <form class="panel admin-form" id="notice-form">
-              <h2>新しいお知らせ</h2>
+              <h2 id="notice-form-title">新しいお知らせ</h2>
               <label>種類<select name="type"><option value="news">新作・ニュース</option><option value="restock">再販</option><option value="color">新色</option><option value="important">重要</option></select></label>
               <label>タイトル<input name="title" maxlength="120" required></label>
               <label>本文<textarea name="body" rows="6" maxlength="2000" required></textarea></label>
               <label>関連商品<select name="productId" id="notice-product"><option value="">指定なし</option></select></label>
               <label class="check-row"><input name="published" type="checkbox" checked>すぐに公開する</label>
-              <button class="button button-primary" type="submit">お知らせを追加</button>
+              <div class="notice-form-actions"><button class="button button-primary" type="submit" id="notice-submit">お知らせを追加</button><button class="button button-ghost" type="button" id="notice-cancel" hidden>編集をやめる</button></div>
             </form>
             <div><h2 class="list-title">公開履歴</h2><div class="stack-list" id="notice-admin-list"></div></div>
           </div>

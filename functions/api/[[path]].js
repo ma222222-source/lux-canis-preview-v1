@@ -394,6 +394,14 @@ async function handleNotices(context, path) {
       .bind(id, type, cleanText(data.title, 120, true), cleanText(data.body, 2000, true), cleanText(data.productId, 100) || null, data.published === false ? 0 : 1, now).run();
     return json({ ok: true, id }, 201);
   }
+  if (request.method === 'PUT' && path.length === 2) {
+    const data = await readJson(request);
+    const type = ['news', 'restock', 'color', 'important'].includes(data.type) ? data.type : 'news';
+    const result = await env.DB.prepare('UPDATE notices SET type = ?, title = ?, body = ?, product_id = ?, published = ? WHERE id = ?')
+      .bind(type, cleanText(data.title, 120, true), cleanText(data.body, 2000, true), cleanText(data.productId, 100) || null, data.published === false ? 0 : 1, path[1]).run();
+    if (!result.meta.changes) return fail('お知らせが見つかりません。', 404, 'NOT_FOUND');
+    return json({ ok: true });
+  }
   if (request.method === 'DELETE' && path.length === 2) {
     await env.DB.prepare('DELETE FROM notices WHERE id = ?').bind(path[1]).run();
     return json({ ok: true });

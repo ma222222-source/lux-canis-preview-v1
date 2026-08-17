@@ -65,6 +65,8 @@ ok((await call('contacts', { cookie: adminCookie })).data.contacts.some((item) =
 const notice = await call('notices', { method: 'POST', cookie: adminCookie, body: { type: 'news', title: '動作確認のお知らせ', body: '自動テストです。', productId, published: true } });
 ok(notice.response.status === 201, 'お知らせを追加');
 ok((await call('notices')).data.notices.some((item) => item.id === notice.data.id), '公開お知らせへ反映');
+ok((await call(`notices/${notice.data.id}`, { method: 'PUT', cookie: adminCookie, body: { type: 'restock', title: '更新したお知らせ', body: '編集テストです。', productId, published: true } })).response.ok, 'お知らせを編集');
+ok((await call('notices')).data.notices.some((item) => item.id === notice.data.id && item.title === '更新したお知らせ' && item.type === 'restock'), '編集したお知らせを公開反映');
 ok((await call(`notices/${notice.data.id}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, 'お知らせを削除');
 ok((await call(`products/${productId}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, '商品を削除');
 ok((await call('auth/logout', { method: 'POST', cookie: userCookie, body: {} })).response.ok, '会員ログアウト');

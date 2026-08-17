@@ -33,21 +33,35 @@ $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   $$('[data-auth]').forEach((item) => item.classList.toggle('is-active', item === button));
   $('#name-field').hidden = authMode === 'login';
   $('#account-name').required = authMode === 'register';
+  $('#password-confirm-field').hidden = authMode === 'login';
+  $('#account-password-confirm').required = authMode === 'register';
   $('#account-password').autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
+  $('#account-password-confirm').autocomplete = authMode === 'register' ? 'new-password' : 'off';
   $('#account-submit').textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
+  $('#account-data-note').hidden = authMode === 'login';
+  $('#password-confirm-error').textContent = '';
+  $('#account-password-confirm').setCustomValidity('');
   $('#auth-error').textContent = '';
 }));
 
 $('#toggle-password').addEventListener('click', () => {
   const input = $('#account-password');
   input.type = input.type === 'password' ? 'text' : 'password';
+  $('#account-password-confirm').type = input.type;
   $('#toggle-password').textContent = input.type === 'password' ? '表示' : '隠す';
+  $('#toggle-password').setAttribute('aria-label', input.type === 'password' ? 'パスワードを表示' : 'パスワードを隠す');
 });
 
 $('#account-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   $('#auth-error').textContent = '';
+  $('#password-confirm-error').textContent = '';
+  $('#account-password-confirm').setCustomValidity('');
+  if (authMode === 'register' && $('#account-password').value !== $('#account-password-confirm').value) {
+    $('#account-password-confirm').setCustomValidity('パスワードが一致しません。');
+    $('#password-confirm-error').textContent = 'パスワードが一致しません。';
+  }
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const button = $('#account-submit'); button.disabled = true; button.textContent = '処理中…';
   try {
@@ -104,7 +118,7 @@ function renderRestock() {
 
 function renderNotices() {
   const label = { news: 'NEW', restock: '再販', color: '新色', important: '重要' };
-  $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'NEWS'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
+  $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'NEWS'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><footer><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</footer></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
 }
 
 async function init() {
