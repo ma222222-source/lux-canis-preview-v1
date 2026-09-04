@@ -168,7 +168,7 @@ async function requireSession(request, env, kind) {
 
 function productInput(data) {
   const status = ['new', 'low', 'sold', 'available'].includes(data.status) ? data.status : 'available';
-  const category = ['ear', 'bracelet', 'other'].includes(data.category) ? data.category : 'other';
+  const category = ['ear', 'bracelet', 'necklace', 'charm', 'other'].includes(data.category) ? data.category : 'other';
   const price = Number(data.price);
   const sortOrder = Number(data.sortOrder);
   const stockQuantity = Number(data.stockQuantity);

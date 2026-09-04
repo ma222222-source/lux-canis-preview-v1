@@ -3,97 +3,95 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Lux Canis（ルクス・カニス）。色と光を楽しむハンドメイドアクセサリー。">
-  <meta name="theme-color" content="#fbfaf6">
+  <meta name="description" content="Lux Canis（ルクス・カニス）。光をまとう、ハンドメイドアクセサリー。">
+  <meta name="theme-color" content="#f7f3ed">
   <link rel="manifest" href="./manifest.webmanifest">
-  <title>Lux Canis | ハンドメイドアクセサリー</title>
+  <link rel="icon" href="./assets/lux-canis-logo.jpg" type="image/jpeg">
+  <title>Lux Canis | 光をまとうアクセサリー</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./home-v2.css">
   <script defer src="./script.js"></script>
 </head>
-<body>
-  <header class="site-header" id="top">
-    <a class="brand" href="#top" aria-label="トップへ"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a>
-    <nav class="nav" aria-label="メインメニュー"><a href="#items">商品</a><a href="#about">ブランド</a><a href="#guide">購入案内</a><a href="./account.html">マイページ</a></nav>
-    <button class="menu-button" type="button" aria-label="メニューを開く" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
+<body class="home-v2">
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <header class="home-header" id="top">
+    <a class="home-brand" href="#top" aria-label="ページの一番上へ戻る">Lux Canis</a>
+    <button class="menu-button" type="button" aria-label="詳細メニューを開く" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </header>
-  <main>
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="kicker">HANDMADE / COLOR / LIGHT</p>
-        <h1 id="hero-title">毎日に、<br><span>ひと粒の光を。</span></h1>
-        <p class="hero-lede">色と光を楽しむ、ハンドメイドアクセサリー。<br>気分に合うひと色を、日常に。</p>
-        <div class="hero-actions"><a class="button button-primary" href="#items">商品を見る</a><a class="text-link" href="#about">Lux Canisについて <span aria-hidden="true">→</span></a></div>
-        <ul class="hero-notes" aria-label="ショップの特徴"><li>豊富なカラー</li><li>ひとつひとつ手作り</li><li>発送目安 1〜2日</li></ul>
+  <main id="main">
+    <section class="home-hero" aria-labelledby="hero-title">
+      <img class="home-hero-photo" src="./assets/item-06.webp" alt="色とりどりのLux Canisアクセサリー" fetchpriority="high">
+      <div class="home-hero-shade"></div>
+      <div class="home-hero-copy">
+        <img class="home-hero-logo" src="./assets/lux-canis-logo.jpg" alt="Lux Canis ロゴ" width="1280" height="1280">
+        <h1 id="hero-title">光をまとう、<br>わたしだけの色。</h1>
+        <p>心を込めて仕立てる、ハンドメイドアクセサリー。</p>
+        <a class="home-hero-button" href="#items">商品を見る</a>
       </div>
-      <div class="hero-visual" aria-label="商品写真">
-        <figure class="hero-main-photo"><img src="./assets/item-03.webp" alt="透明感のあるビーズピアス" width="1200" height="1600" fetchpriority="high"></figure>
-        <figure class="hero-sub-photo hero-sub-photo-a"><img src="./assets/item-01.webp" alt="ピンクとブルーのビーズピアス" width="1200" height="1600"></figure>
-        <figure class="hero-sub-photo hero-sub-photo-b"><img src="./assets/item-06.webp" alt="複数カラーのハンドメイドピアス" width="1200" height="1200"></figure>
-        <div class="hero-stamp" aria-hidden="true"><span>made by hand</span><strong>Lux Canis</strong></div>
-      </div>
+      <a class="scroll-cue" href="#categories"><span>下へスクロール</span><i aria-hidden="true"></i></a>
     </section>
-    <section class="intro-strip" aria-label="ブランド紹介"><p>透明感のあるビーズと、日常に取り入れやすい色合わせ。</p><p>今日はどの色にする？</p></section>
 
-    <section class="section items-section" id="items" aria-labelledby="items-title">
-      <div class="section-heading"><div><p class="kicker">ITEMS</p><h2 id="items-title">気になる色から、<br>選ぶ。</h2></div><p>現在はピアスを中心に制作しています。<br>商品情報は運営画面から更新しています。</p></div>
-      <div class="category-filters" aria-label="商品カテゴリ">
-        <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">すべて</button>
-        <button class="filter-button" type="button" data-filter="ear">ピアス・イヤリング</button>
-        <button class="filter-button" type="button" data-filter="bracelet">ブレスレット</button>
-      </div>
-      <div class="product-grid">
-        <article class="product-card" data-name="Color Mix" data-image="./assets/item-01.webp" data-copy="ピンク、ブルー、クリアの粒が重なる、可愛らしく透明感のあるデザイン。" data-color="Pink / Blue / Clear"><button class="product-open" type="button" aria-label="Color Mixの詳細を見る"><span class="product-image"><img src="./assets/item-01.webp" alt="ピンクとブルーのビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Color Mix</strong><small>Pink & Blue</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
-        <article class="product-card" data-name="Forest Drop" data-image="./assets/item-02.webp" data-copy="深いグリーンと透明感を重ねた、落ち着いた色味のドロップデザイン。" data-color="Green / Clear"><button class="product-open" type="button" aria-label="Forest Dropの詳細を見る"><span class="product-image"><img src="./assets/item-02.webp" alt="グリーン系のビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Forest Drop</strong><small>Green</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
-        <article class="product-card" data-name="Soft Aurora" data-image="./assets/item-03.webp" data-copy="淡いピンクとブルーが光を受けて、やさしくきらめくデザイン。" data-color="Pink / Blue / Gold"><button class="product-open" type="button" aria-label="Soft Auroraの詳細を見る"><span class="product-image"><img src="./assets/item-03.webp" alt="淡い色合いのビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Soft Aurora</strong><small>Pastel Mix</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
-        <article class="product-card" data-name="Tiny Drop" data-image="./assets/item-04.webp" data-copy="小さなビーズと雫モチーフを組み合わせた、日常使いしやすいデザイン。" data-color="5 Colors"><button class="product-open" type="button" aria-label="Tiny Dropの詳細を見る"><span class="product-image"><img src="./assets/item-04.webp" alt="5色の小さなドロップピアス" loading="lazy"></span><span class="product-meta"><span><strong>Tiny Drop</strong><small>5 Colors</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
-        <article class="product-card" data-name="Mini Hoop" data-image="./assets/item-05.webp" data-copy="ビーズを小さな輪に集めた、ころんとしたフォルムのカラーバリエーション。" data-color="Color Variation"><button class="product-open" type="button" aria-label="Mini Hoopの詳細を見る"><span class="product-image"><img src="./assets/item-05.webp" alt="複数カラーの小さなフープピアス" loading="lazy"></span><span class="product-meta"><span><strong>Mini Hoop</strong><small>Color Variation</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
-        <article class="product-card" data-name="Long Beads" data-image="./assets/item-07.webp" data-copy="縦のラインを活かした、揺れ感のあるロングタイプ。色違いで楽しめます。" data-color="5 Colors"><button class="product-open" type="button" aria-label="Long Beadsの詳細を見る"><span class="product-image"><img src="./assets/item-07.webp" alt="5色のロングビーズピアス" loading="lazy"></span><span class="product-meta"><span><strong>Long Beads</strong><small>5 Colors</small></span><span class="price">¥#,###</span></span><span class="detail-link">商品詳細を見る <span>→</span></span></button></article>
+    <section class="home-section category-section" id="categories" aria-labelledby="category-title">
+      <div class="home-heading centered-heading"><p>アイテムを探す</p><h2 id="category-title">カテゴリーから選ぶ</h2></div>
+      <div class="category-grid">
+        <a class="category-card category-card-wide" href="#items" data-filter-link="ear"><img src="./assets/item-03.webp" alt="ピアス・イヤリングの商品写真" loading="lazy"><span>ピアス／イヤリング</span></a>
+        <a class="category-card" href="#items" data-filter-link="bracelet"><img src="./assets/item-08.webp" alt="ブレスレットカテゴリーのイメージ" loading="lazy"><span>ブレスレット</span></a>
+        <a class="category-card" href="#items" data-filter-link="necklace"><img src="./assets/item-07.webp" alt="ネックレスカテゴリーのイメージ" loading="lazy"><span>ネックレス</span></a>
+        <a class="category-card" href="#items" data-filter-link="charm"><img src="./assets/item-04.webp" alt="チャームカテゴリーのイメージ" loading="lazy"><span>チャーム</span></a>
+        <a class="category-card" href="#items" data-filter-link="other"><img src="./assets/item-05.webp" alt="その他カテゴリーのイメージ" loading="lazy"><span>その他</span></a>
       </div>
     </section>
 
-    <section class="color-story" aria-labelledby="color-title"><div class="color-story-image"><img src="./assets/item-05.webp" alt="さまざまなカラーのアクセサリー" loading="lazy"></div><div class="color-story-copy"><p class="kicker">COLOR STORY</p><h2 id="color-title">今日の気分に、<br>好きな色を。</h2><p>同じかたちでも、色が変わるだけで印象は大きく変わります。服や気分、その日の予定に合わせて選べるよう、さまざまなカラーを制作しています。</p><div class="swatches" aria-label="カラーパレット"><span class="swatch swatch-pink"></span><span class="swatch swatch-orange"></span><span class="swatch swatch-green"></span><span class="swatch swatch-blue"></span><span class="swatch swatch-clear"></span></div><a class="text-link" href="#items">商品一覧を見る <span aria-hidden="true">→</span></a></div></section>
-
-    <section class="section about-section" id="about" aria-labelledby="about-title"><div class="about-copy"><p class="kicker">ABOUT LUX CANIS</p><h2 id="about-title">ひとつひとつ、<br>丁寧に。</h2><p>Lux Canis（ルクス・カニス）は、色と光の組み合わせを楽しむハンドメイドアクセサリーブランドです。</p><p>日常の中で気軽に使えて、身につけたときに少し嬉しくなるものを目指して制作しています。</p></div><div class="about-gallery"><figure class="about-photo about-photo-large"><img src="./assets/item-09.webp" alt="グリーンとオレンジのビーズピアス" loading="lazy"></figure><figure class="about-photo"><img src="./assets/item-08.webp" alt="雫モチーフのアクセサリー" loading="lazy"></figure><figure class="about-photo"><img src="./assets/item-10.webp" alt="ビーズピアスのアップ" loading="lazy"></figure></div></section>
-
-    <section class="section guide-section" id="guide" aria-labelledby="guide-title"><div class="section-heading compact-heading"><div><p class="kicker">SHOP GUIDE</p><h2 id="guide-title">購入について</h2></div><p>現在はメルカリでの販売を予定しています。</p></div><div class="guide-grid"><article class="guide-card"><span class="guide-number">01</span><h3>発送</h3><p>発送目安は1〜2日。状況によっては当日発送します。</p></article><article class="guide-card"><span class="guide-number">02</span><h3>まとめ買い</h3><p>2点50円引き / 3点100円引き / 4点200円引き。4点以上は1点につき50円引きです。</p></article><article class="guide-card"><span class="guide-number">03</span><h3>個数について</h3><p>すべて手作業のため、制作状況に応じて個数を制限する場合があります。</p></article></div></section>
-    <section class="shop-cta" aria-labelledby="shop-title"><p class="kicker">ONLINE SHOP</p><h2 id="shop-title">気になるものを<br>見つけたら。</h2><p>販売中の商品はメルカリから購入いただける予定です。</p><button class="button button-dark pseudo-mercari" type="button">メルカリで商品を見る <span aria-hidden="true">→</span></button><small>※ メルカリの実URLは確認後に設定します。</small></section>
-    <section class="section home-notices" id="notices" aria-labelledby="home-notices-title">
-      <div class="section-heading compact-heading"><div><p class="kicker">LATEST NEWS</p><h2 id="home-notices-title">お知らせ</h2></div><p>新作・再販・新色の最新情報です。</p></div>
-      <div class="home-notice-list" id="home-notice-list" aria-live="polite" aria-busy="true"><p class="home-notice-loading">読み込み中…</p></div>
-      <a class="text-link home-notice-more" href="./account.html#notices">お知らせをすべて見る <span aria-hidden="true">→</span></a>
+    <section class="home-section feature-section" aria-labelledby="feature-title">
+      <div class="home-heading row-heading"><div><p>今、見てほしいもの</p><h2 id="feature-title">新作・おすすめ</h2></div><div class="rail-buttons" aria-label="新作・おすすめ商品のスクロール操作"><button type="button" data-scroll="feature-rail" data-direction="prev" aria-label="前の商品を見る">←</button><button type="button" data-scroll="feature-rail" data-direction="next" aria-label="次の商品を見る">→</button></div></div>
+      <p class="swipe-hint">横にスワイプしてご覧いただけます</p>
+      <div class="product-rail feature-rail" id="feature-rail" aria-live="polite" aria-busy="true"><div class="rail-loading">商品を読み込んでいます…</div></div>
     </section>
-    <section class="news-signup" id="news" aria-labelledby="news-title">
-      <p class="kicker">NEWS &amp; RESTOCK</p>
-      <h2 id="news-title">新しいきらめきを、<br>お知らせ。</h2>
-      <p>新作・再販・新色のお知らせを、マイページで受け取る内容を選べます。</p>
-      <a class="button button-dark" href="./account.html#notifications">通知設定を確認する</a>
+
+    <section class="home-section item-section" id="items" aria-labelledby="items-title">
+      <div class="home-heading row-heading"><div><p>商品メニュー</p><h2 id="items-title">商品一覧</h2></div><div class="rail-buttons" aria-label="商品のスクロール操作"><button type="button" data-scroll="product-rail" data-direction="prev" aria-label="前の商品を見る">←</button><button type="button" data-scroll="product-rail" data-direction="next" aria-label="次の商品を見る">→</button></div></div>
+      <div class="category-filters" aria-label="商品カテゴリーで絞り込む">
+        <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">すべて</button><button class="filter-button" type="button" data-filter="ear" aria-pressed="false">ピアス／イヤリング</button><button class="filter-button" type="button" data-filter="bracelet" aria-pressed="false">ブレスレット</button><button class="filter-button" type="button" data-filter="necklace" aria-pressed="false">ネックレス</button><button class="filter-button" type="button" data-filter="charm" aria-pressed="false">チャーム</button><button class="filter-button" type="button" data-filter="other" aria-pressed="false">その他</button>
+      </div>
+      <p class="swipe-hint">写真をタップすると商品詳細を確認できます</p>
+      <div class="product-rail product-grid" id="product-rail" aria-live="polite" aria-busy="true"><div class="rail-loading">商品を読み込んでいます…</div></div>
+      <div class="shop-link-wrap"><a class="outline-button" href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリの販売ページを見る <span aria-hidden="true">↗</span></a></div>
     </section>
+
+    <section class="home-section favorites-section" id="favorites" aria-labelledby="favorites-title">
+      <div class="home-heading row-heading"><div><p>あとで見返す</p><h2 id="favorites-title">いいねした商品</h2></div></div>
+      <div class="product-rail favorites-rail" id="favorites-rail" aria-live="polite"></div>
+    </section>
+
+    <section class="home-section review-section" id="reviews" aria-labelledby="review-title">
+      <div class="home-heading centered-heading"><p>お客様のお声</p><h2 id="review-title">レビュー</h2></div>
+      <div class="review-placeholder"><div class="review-placeholder-image"><img src="./assets/lux-canis-logo.jpg" alt="Lux Canis ロゴ" loading="lazy" width="1280" height="1280"></div><div class="review-placeholder-copy"><span>掲載準備中</span><h3>ご感想や着用写真を、<br>これから大切にご紹介します。</h3><p>実際にいただいたお声だけを掲載するため、現在は準備中です。ご購入後のご感想やお写真をお待ちしています。</p></div></div>
+    </section>
+
+    <section class="home-section about-section-v2" id="about" aria-labelledby="about-title">
+      <div class="about-logo-panel"><img src="./assets/lux-canis-logo.jpg" alt="犬と光を描いたLux Canisのロゴ" loading="lazy" width="1280" height="1280"></div>
+      <div class="about-story"><div class="home-heading"><p>ルクス・カニスについて</p><h2 id="about-title">誰かの「好き」にも<br>なれたら。</h2></div><p>キラキラが好きな方へ、「光をまとう」作品をお届けしたいという想いで、一つひとつ心を込めて制作しています。</p><p>自分の「好き」と「作りたい」を大切に。そこから生まれた作品が、誰かの「好き」にもなれたら嬉しいです𓂃𓈒𓏸</p><div class="name-story"><h3>ブランド名に込めた意味</h3><p>Lux（ルクス）はラテン語で「光・輝き」、Canis（カニス）は「犬」。</p><p>「犬がもたらす光」「愛犬という輝き」という想いを、Lux Canisという名前に込めています。</p></div></div>
+    </section>
+
+    <section class="home-section home-notices" id="notices" aria-labelledby="notices-title">
+      <div class="home-heading row-heading"><div><p>最新情報</p><h2 id="notices-title">お知らせ</h2></div><a href="./account.html#notices">すべて見る →</a></div>
+      <div class="home-notice-list" id="home-notice-list" aria-live="polite" aria-busy="true"><p class="rail-loading">お知らせを読み込んでいます…</p></div>
+    </section>
+
+    <section class="purchase-banner" aria-labelledby="purchase-title"><p>購入について</p><h2 id="purchase-title">現在はメルカリで<br>販売しています。</h2><ul><li>発送目安 1〜2日</li><li>まとめ買い割引あり</li><li>作品により個数制限あり</li></ul><div class="purchase-actions"><a class="light-button" href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリへ進む <span aria-hidden="true">↗</span></a><a href="./guide.html#purchase">詳しく見る →</a></div></section>
   </main>
+
   <div class="menu-scrim" data-menu-close hidden></div>
-  <aside class="site-menu" id="site-menu" aria-hidden="true" aria-label="サイトメニュー">
-    <div class="menu-head"><a class="brand" href="#top"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a><button class="menu-close" type="button" aria-label="メニューを閉じる" data-menu-close>×</button></div>
-    <div class="drawer-intro">
-      <div><p class="kicker">SHOP SUPPORT</p><h2>選ぶ前も、<br>選んだあとも。</h2></div>
-      <a class="drawer-shop-link" href="#items" data-menu-close>商品一覧へ <span aria-hidden="true">→</span></a>
-    </div>
-    <nav class="drawer-nav" aria-label="ご利用案内">
-      <p class="drawer-group-label">GUIDE &amp; SUPPORT</p>
-      <a href="./guide.html"><span class="drawer-number">01</span><span class="drawer-link-copy"><strong>はじめての方へ</strong><small>購入の流れとご注文前の確認</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <a href="./guide.html#faq"><span class="drawer-number">02</span><span class="drawer-link-copy"><strong>よくある質問</strong><small>カラー・金具・発送について</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <a href="./guide.html#care"><span class="drawer-number">03</span><span class="drawer-link-copy"><strong>お手入れ方法</strong><small>長く楽しむための保管と扱い方</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <p class="drawer-group-label drawer-group-label-member">MEMBER &amp; NEWS</p>
-      <a href="./account.html"><span class="drawer-number">04</span><span class="drawer-link-copy"><strong>会員登録・マイページ</strong><small>登録、ログイン、通知設定</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <a href="./account.html#notices"><span class="drawer-number">05</span><span class="drawer-link-copy"><strong>お知らせ</strong><small>新作・新色・再販の最新情報</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <a href="./account.html#restock"><span class="drawer-number">06</span><span class="drawer-link-copy"><strong>再販待ち</strong><small>売り切れ商品の入荷を確認</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <p class="drawer-group-label drawer-group-label-member">INFORMATION</p>
-      <a href="./contact.html"><span class="drawer-number">07</span><span class="drawer-link-copy"><strong>お問い合わせ</strong><small>商品やご注文について相談</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
-      <a href="./privacy.html"><span class="drawer-number">08</span><span class="drawer-link-copy"><strong>プライバシーポリシー</strong><small>個人情報の取り扱いについて</small></span><span class="drawer-arrow" aria-hidden="true">→</span></a>
+  <aside class="site-menu" id="site-menu" aria-hidden="true" aria-label="詳細メニュー">
+    <div class="menu-head"><a class="menu-brand" href="#top" data-menu-close>Lux Canis</a><button class="menu-close" type="button" aria-label="詳細メニューを閉じる" data-menu-close>×</button></div>
+    <p class="menu-title">メニュー</p>
+    <nav class="drawer-nav" aria-label="サイトの詳しいメニュー">
+      <a href="#items" data-menu-close><span>01</span><strong>商品一覧</strong><i>→</i></a><a href="#favorites" data-menu-close><span>02</span><strong>いいね</strong><i>→</i></a><a href="./account.html"><span>03</span><strong>会員登録・ログイン</strong><i>→</i></a><a href="./guide.html#purchase"><span>04</span><strong>購入について</strong><i>→</i></a><a href="./guide.html#restock"><span>05</span><strong>再販について</strong><i>→</i></a><a href="./guide.html#care"><span>06</span><strong>お手入れ方法</strong><i>→</i></a><a href="./guide.html#faq"><span>07</span><strong>よくある質問</strong><i>→</i></a><a href="./contact.html"><span>08</span><strong>お問い合わせ</strong><i>→</i></a><a href="./privacy.html"><span>09</span><strong>プライバシーポリシー</strong><i>→</i></a><a href="#notices" data-menu-close><span>10</span><strong>お知らせ</strong><i>→</i></a>
     </nav>
-    <div class="drawer-social"><button class="demo-action" type="button" data-message="メルカリURLは未設定です。">Mercari ↗</button><button class="demo-action" type="button" data-message="Instagram URLは未設定です。">Instagram ↗</button></div>
-    <p class="drawer-note">SUPPORT</p>
+    <div class="drawer-social" aria-label="外部サイト"><a href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリ ↗</a><button class="demo-action" type="button" data-message="InstagramのURLはまだ設定されていません。">Instagram（準備中）</button><a href="https://x.com/lux_canis?s=11&amp;t=lWyH4gcoqISd_hmwUv5dXQ" target="_blank" rel="noopener noreferrer">X（旧Twitter）↗</a></div>
   </aside>
-  <footer class="footer"><a class="brand footer-brand" href="#top"><span class="brand-name">Lux Canis</span><span class="brand-sub">HANDMADE ACCESSORIES</span></a><nav class="footer-links" aria-label="フッターメニュー"><a href="./guide.html">ご利用案内</a><a href="./contact.html">お問い合わせ</a><a href="./privacy.html">プライバシー</a></nav><p class="copyright">© <span id="year"></span> Lux Canis</p></footer>
-  <dialog class="product-dialog" id="product-dialog" aria-labelledby="dialog-title"><button class="dialog-close" type="button" aria-label="閉じる">×</button><div class="dialog-grid"><div class="dialog-image-wrap"><img id="dialog-image" src="" alt=""></div><div class="dialog-copy"><p class="kicker">ITEM DETAIL</p><h2 id="dialog-title"></h2><p class="dialog-price">¥#,###</p><p id="dialog-description"></p><dl class="detail-list"><div><dt>カラー</dt><dd id="dialog-color"></dd></div><div><dt>発送目安</dt><dd>1〜2日</dd></div><div><dt>販売</dt><dd>メルカリ予定</dd></div></dl><button class="button button-dark pseudo-mercari" type="button">メルカリで購入する <span aria-hidden="true">→</span></button><p class="dialog-note">※ 価格・商品名・販売URLは確認用表示です。</p></div></div></dialog>
-  <div class="toast" id="toast" role="status" aria-live="polite">メルカリURLはまだ未設定です。</div>
+
+  <footer class="home-footer"><a href="#top" aria-label="ページの一番上へ戻る">Lux Canis</a><nav aria-label="フッターメニュー"><a href="./guide.html">ご利用案内</a><a href="./contact.html">お問い合わせ</a><a href="./privacy.html">プライバシー</a></nav><p>© <span id="year"></span> Lux Canis</p><a class="admin-demo-link" href="./admin.html" rel="nofollow">運営管理</a></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

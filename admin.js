@@ -148,7 +148,7 @@ function renderProducts() {
   $('#product-count').textContent = `${list.length}件`;
   $('#product-admin-list').innerHTML = list.length ? list.map((product) => `<article class="product-admin-row">
     <img class="admin-thumb" src="${esc(product.images[0] || '/icon.svg')}" alt="">
-    <div class="product-copy"><strong>${esc(product.name)}</strong><small>${esc(product.category === 'ear' ? 'ピアス・イヤリング' : product.category === 'bracelet' ? 'ブレスレット' : 'その他')} ・ 在庫${Number(product.stockQuantity || 0)}点</small></div>
+    <div class="product-copy"><strong>${esc(product.name)}</strong><small>${esc(({ ear: 'ピアス・イヤリング', bracelet: 'ブレスレット', necklace: 'ネックレス', charm: 'チャーム', other: 'その他' })[product.category] || 'その他')} ・ 在庫${Number(product.stockQuantity || 0)}点</small></div>
     <strong class="price-cell">${yen(product.price)}</strong><span class="status-pill ${esc(product.status)}">${statusLabel(product.status)}</span>
     <span class="${product.published ? 'published' : 'unpublished'}">${product.published ? '公開中' : '非公開'}</span>
     <div class="row-actions"><button class="icon-button" type="button" data-edit-product="${esc(product.id)}" aria-label="${esc(product.name)}を編集">編集</button></div>
