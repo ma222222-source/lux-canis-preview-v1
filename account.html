@@ -9,46 +9,58 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./account.css">
   <link rel="stylesheet" href="./account-polish.css">
+  <link rel="stylesheet" href="./account-art.css">
   <link rel="stylesheet" href="./visibility.css">
   <script defer src="./account.js"></script>
   <title>マイページ | Lux Canis</title>
 </head>
-<body>
-  <header class="app-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">MY PAGE</span></a><a class="app-back" href="./index.html">トップへ戻る</a></header>
+<body class="account-page">
+  <header class="app-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">会員ページ</span></a><a class="app-back" href="./index.html">トップへ戻る</a></header>
   <main class="account-shell">
     <aside class="account-nav" aria-label="マイページメニュー">
       <button class="is-active" data-view="profile" type="button">マイページ</button><button data-view="notifications" type="button">通知設定</button><button data-view="restock" type="button">再販待ち</button><button data-view="notices" type="button">お知らせ</button>
     </aside>
     <div class="account-content">
       <section class="account-view is-active" id="view-profile">
-        <p class="kicker">MY PAGE</p><h1>こんにちは。</h1>
+        <p class="kicker">会員ページ</p><h1>光を、<br>つないでおく。</h1>
         <div id="signed-out">
-          <p class="view-lede">会員登録すると、再販待ちや通知設定をどの端末からでも確認できます。</p>
-          <div class="auth-tabs"><button class="is-active" data-auth="register" type="button">無料で登録</button><button data-auth="login" type="button">ログイン</button></div>
-          <form class="app-form" id="account-form" novalidate>
-            <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
-            <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>
-            <label><span>パスワード <em>必須</em></span><span class="password-input"><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><button type="button" id="toggle-password" aria-label="パスワードを表示">表示</button></span><small>8文字以上で入力してください。</small><small class="field-error"></small></label>
-            <label id="password-confirm-field"><span>パスワード（確認） <em>必須</em></span><input id="account-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><small class="field-error" id="password-confirm-error"></small></label>
-            <p class="account-data-note" id="account-data-note">メールアドレスはログインと通知設定の保存に使用します。現在、メールの自動配信は行いません。</p>
-            <div class="consent-field" id="privacy-consent-field">
-              <p><a href="./privacy.html">プライバシーポリシー</a>に、取得する情報と利用目的を記載しています。</p>
-              <label class="consent-check"><input id="privacy-consent" name="privacyConsent" type="checkbox" required><span>内容を確認し、同意して会員登録する <em>必須</em></span></label>
-              <small class="field-error" id="privacy-consent-error" role="alert"></small>
+          <p class="view-lede">会員登録すると、再販希望と通知設定をアカウントに保存し、別の端末からも確認できます。</p>
+          <div class="member-benefits" aria-label="会員登録でできること"><div><span>01</span><strong>再販希望を保存</strong><p>気になる商品とカラーを一覧で管理できます。</p></div><div><span>02</span><strong>通知の種類を設定</strong><p>新作・再販・新色の希望をアカウントに残せます。</p></div><div><span>03</span><strong>別の端末で確認</strong><p>同じメールアドレスでログインすると設定を引き継げます。</p></div></div>
+          <div class="registration-layout">
+            <div class="registration-form-panel">
+              <div class="auth-tabs"><button class="is-active" data-auth="register" type="button">無料で登録</button><button data-auth="login" type="button">ログイン</button></div>
+              <form class="app-form" id="account-form" novalidate>
+                <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
+                <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>
+                <label><span>パスワード <em>必須</em></span><span class="password-input"><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><button type="button" id="toggle-password" aria-label="パスワードを表示">表示</button></span><small>8文字以上。保存時は元の文字が分からない形に変換します。</small><small class="field-error"></small></label>
+                <label id="password-confirm-field"><span>パスワード（確認） <em>必須</em></span><input id="account-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><small class="field-error" id="password-confirm-error"></small></label>
+                <p class="account-data-note" id="account-data-note">登録直後にログイン状態になります。ログインは安全なCookieで30日間維持されます。</p>
+                <div class="consent-field" id="privacy-consent-field">
+                  <p><a href="./privacy.html">プライバシーポリシー</a>で、取得する情報と利用目的を確認できます。</p>
+                  <label class="consent-check"><input id="privacy-consent" name="privacyConsent" type="checkbox" required><span>内容を確認し、同意して会員登録する <em>必須</em></span></label>
+                  <small class="field-error" id="privacy-consent-error" role="alert"></small>
+                </div>
+                <p class="auth-error" id="auth-error" role="alert"></p>
+                <button class="button button-dark" type="submit" id="account-submit">無料で登録する</button>
+              </form>
             </div>
-            <p class="auth-error" id="auth-error" role="alert"></p>
-            <button class="button button-dark" type="submit" id="account-submit">無料で登録する</button>
-          </form>
+            <aside class="data-guide" aria-labelledby="data-guide-title">
+              <p class="data-guide-kicker">登録前に分かること</p><h2 id="data-guide-title">お預かりする情報を、<br>先にお伝えします。</h2>
+              <dl><div><dt>保存する情報</dt><dd>お名前、メールアドレス、変換済みパスワード、通知設定、再販希望、登録日、同意日時</dd></div><div><dt>運営者が確認できる情報</dt><dd>お名前、メールアドレス、通知設定、登録日、再販を希望した商品・カラー・日時</dd></div><div><dt>保存しない情報</dt><dd>住所、クレジットカード、メルカリでの購入履歴</dd></div><div><dt>運営者にも見えない情報</dt><dd>元のパスワード。復元できない形に変換して保存します。</dd></div></dl>
+              <p class="local-like-note"><strong>いいねについて</strong>いいねは現在、この端末のブラウザ内だけに保存されます。会員アカウントには同期されません。</p>
+            </aside>
+          </div>
         </div>
         <div id="signed-in" hidden>
           <div class="profile-card"><span class="profile-avatar" aria-hidden="true">LC</span><div><strong id="profile-name"></strong><p id="profile-email"></p></div></div>
+          <dl class="profile-data"><div><dt>登録日</dt><dd id="profile-created"></dd></div><div><dt>保存されている内容</dt><dd>会員情報・通知設定・再販待ち</dd></div><div><dt>パスワード</dt><dd>元の文字は運営者にも表示されません</dd></div></dl>
           <div class="profile-actions"><a href="./index.html#items">商品を見る</a><button type="button" id="logout-button">ログアウト</button></div>
           <section class="account-danger" aria-labelledby="delete-account-title"><div><h2 id="delete-account-title">アカウントの削除</h2><p id="delete-account-description">ログイン情報、通知設定、再販待ちを完全に削除します。この操作は取り消せません。</p></div><button type="button" id="open-delete-account" aria-describedby="delete-account-description">削除手続きへ</button></section>
         </div>
       </section>
 
       <section class="account-view" id="view-notifications">
-        <p class="kicker">SETTINGS</p><h1>通知設定</h1><p class="view-lede">選んだ内容はアカウントに保存され、別の端末でも引き継がれます。</p>
+        <p class="kicker">登録内容</p><h1>通知設定</h1><p class="view-lede">選んだ内容はアカウントに保存され、別の端末でも引き継がれます。</p>
         <div class="login-required" data-login-required hidden><a class="button button-dark" href="#">ログインして設定する</a></div>
         <div class="setting-list" id="preference-list">
           <label class="switch-row"><span><strong>新作のお知らせ</strong><small>新しいアクセサリーが追加されたとき</small></span><input type="checkbox" data-pref="newItems"><i></i></label>
@@ -59,13 +71,13 @@
         <p class="settings-note">現在はサイト内のお知らせが利用できます。メール自動送信はまだ接続していません。</p>
       </section>
 
-      <section class="account-view" id="view-restock"><p class="kicker">RESTOCK</p><h1>再販待ち</h1><div id="restock-list"></div></section>
-      <section class="account-view" id="view-notices"><p class="kicker">NOTICES</p><h1>お知らせ</h1><p class="view-lede">Lux Canisからの新作・再販・新色情報です。</p><div class="notice-list" id="notice-list"></div></section>
+      <section class="account-view" id="view-restock"><p class="kicker">再販リクエスト</p><h1>再販待ち</h1><p class="view-lede">商品詳細から登録した商品とカラーを確認・解除できます。</p><div id="restock-list"></div></section>
+      <section class="account-view" id="view-notices"><p class="kicker">最新情報</p><h1>お知らせ</h1><p class="view-lede">Lux Canisからの新作・再販・新色情報です。お知らせ自体は会員登録なしでも見られます。</p><div class="notice-list" id="notice-list"></div></section>
     </div>
   </main>
   <dialog class="delete-account-dialog" id="delete-account-dialog" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
     <form class="delete-account-form" id="delete-account-form" novalidate>
-      <div class="delete-dialog-head"><div><p class="kicker">DELETE ACCOUNT</p><h2 id="delete-dialog-title">本当に削除しますか？</h2></div><button class="delete-dialog-close" id="close-delete-account" type="button" aria-label="閉じる">×</button></div>
+      <div class="delete-dialog-head"><div><p class="kicker">アカウント削除</p><h2 id="delete-dialog-title">本当に削除しますか？</h2></div><button class="delete-dialog-close" id="close-delete-account" type="button" aria-label="閉じる">×</button></div>
       <p id="delete-dialog-description">すべての端末からログアウトし、会員情報・通知設定・再販待ちを削除します。過去のお問い合わせ内容は自動削除されません。</p>
       <div class="delete-summary" aria-label="削除される情報"><span>会員情報</span><span>通知設定</span><span>再販待ち</span><span>全端末のログイン</span></div>
       <label><span>現在のパスワード <em>必須</em></span><span class="delete-password-wrap"><input id="delete-account-password" name="password" type="password" autocomplete="current-password" maxlength="200" required><button type="button" id="toggle-delete-password" aria-label="パスワードを表示">表示</button></span></label>

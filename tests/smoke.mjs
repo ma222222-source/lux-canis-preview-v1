@@ -29,6 +29,7 @@ ok(wrongAdmin.response.status === 401, '誤った管理者パスワードを拒�
 const adminLogin = await call('admin/login', { method: 'POST', body: { password: '0000' } });
 adminCookie = cookieFrom(adminLogin.response);
 ok(adminLogin.response.ok && adminCookie.startsWith('lux_admin_session='), '管理者ログイン');
+ok(/HttpOnly/i.test(adminLogin.response.headers.get('set-cookie') || '') && /Secure/i.test(adminLogin.response.headers.get('set-cookie') || '') && /SameSite=Strict/i.test(adminLogin.response.headers.get('set-cookie') || ''), '管理者Cookieの安全設定');
 ok((await call('admin/overview', { cookie: adminCookie })).response.ok, '管理ダッシュボードを取得');
 const staleProducts = (await call('products?admin=1', { cookie: adminCookie })).data.products.filter((item) => item.name.startsWith('動作確認商品'));
 for (const item of staleProducts) await call(`products/${item.id}`, { method: 'DELETE', cookie: adminCookie, body: {} });
@@ -55,7 +56,13 @@ ok(withoutConsent.response.status === 400 && withoutConsent.data.error?.code ===
 const registered = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234', privacyConsent: true } });
 userCookie = cookieFrom(registered.response);
 ok(registered.response.status === 201 && userCookie.startsWith('lux_session='), '会員登録とログイン');
-ok((await call('auth/me', { cookie: userCookie })).data.user?.email === email, 'ログイン状態を取得');
+ok(/HttpOnly/i.test(registered.response.headers.get('set-cookie') || '') && /Secure/i.test(registered.response.headers.get('set-cookie') || '') && /SameSite=Strict/i.test(registered.response.headers.get('set-cookie') || ''), '会員Cookieの安全設定');
+const currentUser = (await call('auth/me', { cookie: userCookie })).data.user;
+ok(currentUser?.email === email, 'ログイン状態を取得');
+ok(!('password_hash' in currentUser) && !('password_salt' in currentUser) && !('password' in currentUser), '会員向け応答にパスワード情報を含めない');
+const adminUser = (await call('admin/users', { cookie: adminCookie })).data.users.find((item) => item.email === email);
+ok(adminUser && !('password_hash' in adminUser) && !('password_salt' in adminUser) && !('password' in adminUser), '管理画面にもパスワード情報を返さない');
+ok(adminUser.preferences?.privacyAcceptedAt && adminUser.preferences?.privacyVersion, '管理画面でポリシー同意記録を確認');
 ok((await call('auth/preferences', { method: 'PUT', cookie: userCookie, body: { newItems: true, restock: true, newColors: false, email: false } })).response.ok, '通知設定を保存');
 
 const restock = await call('restock', { method: 'POST', cookie: userCookie, body: { productId, color: 'Test' } });

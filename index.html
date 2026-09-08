@@ -10,6 +10,7 @@
   <title>Lux Canis | 光をまとうアクセサリー</title>
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./home-v2.css">
+  <link rel="stylesheet" href="./home-art.css">
   <script defer src="./script.js"></script>
 </head>
 <body class="home-v2">
@@ -33,12 +34,12 @@
 
     <section class="home-section category-section" id="categories" aria-labelledby="category-title">
       <div class="home-heading centered-heading"><p>アイテムを探す</p><h2 id="category-title">カテゴリーから選ぶ</h2></div>
-      <div class="category-grid">
-        <a class="category-card category-card-wide" href="#items" data-filter-link="ear"><img src="./assets/item-03.webp" alt="ピアス・イヤリングの商品写真" loading="lazy"><span>ピアス／イヤリング</span></a>
-        <a class="category-card" href="#items" data-filter-link="bracelet"><img src="./assets/item-08.webp" alt="ブレスレットカテゴリーのイメージ" loading="lazy"><span>ブレスレット</span></a>
-        <a class="category-card" href="#items" data-filter-link="necklace"><img src="./assets/item-07.webp" alt="ネックレスカテゴリーのイメージ" loading="lazy"><span>ネックレス</span></a>
-        <a class="category-card" href="#items" data-filter-link="charm"><img src="./assets/item-04.webp" alt="チャームカテゴリーのイメージ" loading="lazy"><span>チャーム</span></a>
-        <a class="category-card" href="#items" data-filter-link="other"><img src="./assets/item-05.webp" alt="その他カテゴリーのイメージ" loading="lazy"><span>その他</span></a>
+      <div class="category-orbit" aria-label="5つの商品カテゴリー">
+        <a class="category-card" href="#items" data-filter-link="ear"><img src="./assets/item-03.webp" alt="ピアス・イヤリングの商品写真" loading="lazy"><span><small>光のかけら 01</small>ピアス／イヤリング</span></a>
+        <a class="category-card" href="#items" data-filter-link="bracelet"><img src="./assets/item-08.webp" alt="ブレスレットカテゴリーのイメージ" loading="lazy"><span><small>光のかけら 02</small>ブレスレット</span></a>
+        <a class="category-card" href="#items" data-filter-link="necklace"><img src="./assets/item-07.webp" alt="ネックレスカテゴリーのイメージ" loading="lazy"><span><small>光のかけら 03</small>ネックレス</span></a>
+        <a class="category-card" href="#items" data-filter-link="charm"><img src="./assets/item-04.webp" alt="チャームカテゴリーのイメージ" loading="lazy"><span><small>光のかけら 04</small>チャーム</span></a>
+        <a class="category-card" href="#items" data-filter-link="other"><img src="./assets/item-05.webp" alt="その他カテゴリーのイメージ" loading="lazy"><span><small>光のかけら 05</small>その他</span></a>
       </div>
     </section>
 
@@ -84,11 +85,28 @@
   <div class="menu-scrim" data-menu-close hidden></div>
   <aside class="site-menu" id="site-menu" aria-hidden="true" aria-label="詳細メニュー">
     <div class="menu-head"><a class="menu-brand" href="#top" data-menu-close>Lux Canis</a><button class="menu-close" type="button" aria-label="詳細メニューを閉じる" data-menu-close>×</button></div>
-    <p class="menu-title">メニュー</p>
-    <nav class="drawer-nav" aria-label="サイトの詳しいメニュー">
-      <a href="#items" data-menu-close><span>01</span><strong>商品一覧</strong><i>→</i></a><a href="#favorites" data-menu-close><span>02</span><strong>いいね</strong><i>→</i></a><a href="./account.html"><span>03</span><strong>会員登録・ログイン</strong><i>→</i></a><a href="./guide.html#purchase"><span>04</span><strong>購入について</strong><i>→</i></a><a href="./guide.html#restock"><span>05</span><strong>再販について</strong><i>→</i></a><a href="./guide.html#care"><span>06</span><strong>お手入れ方法</strong><i>→</i></a><a href="./guide.html#faq"><span>07</span><strong>よくある質問</strong><i>→</i></a><a href="./contact.html"><span>08</span><strong>お問い合わせ</strong><i>→</i></a><a href="./privacy.html"><span>09</span><strong>プライバシーポリシー</strong><i>→</i></a><a href="#notices" data-menu-close><span>10</span><strong>お知らせ</strong><i>→</i></a>
-    </nav>
-    <div class="drawer-social" aria-label="外部サイト"><a href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリ ↗</a><button class="demo-action" type="button" data-message="InstagramのURLはまだ設定されていません。">Instagram（準備中）</button><a href="https://x.com/lux_canis?s=11&amp;t=lWyH4gcoqISd_hmwUv5dXQ" target="_blank" rel="noopener noreferrer">X（旧Twitter）↗</a></div>
+    <p class="menu-title">光の案内</p>
+    <div class="drawer-group">
+      <p class="drawer-group-title">作品を探す</p>
+      <nav class="drawer-nav" aria-label="作品を探すメニュー">
+        <a href="#items" data-menu-close><span aria-hidden="true"></span><strong>商品一覧<small>すべての作品とカラー</small></strong><i>→</i></a>
+        <a href="#favorites" data-menu-close><span aria-hidden="true"></span><strong>いいね<small>この端末で選んだ作品</small></strong><i>→</i></a>
+      </nav>
+    </div>
+    <div class="drawer-group">
+      <p class="drawer-group-title">会員・ご利用案内</p>
+      <nav class="drawer-nav" aria-label="会員・ご利用案内メニュー">
+        <a href="./account.html"><span aria-hidden="true"></span><strong>会員登録・ログイン<small>保存情報も登録前に確認</small></strong><i>→</i></a>
+        <a href="./guide.html#purchase"><span aria-hidden="true"></span><strong>購入について<small>配送・割引・個数制限</small></strong><i>→</i></a>
+        <a href="./guide.html#restock"><span aria-hidden="true"></span><strong>再販について<small>再販希望の登録方法</small></strong><i>→</i></a>
+        <a href="./guide.html#care"><span aria-hidden="true"></span><strong>お手入れ方法<small>長く楽しむための扱い方</small></strong><i>→</i></a>
+        <a href="./guide.html#faq"><span aria-hidden="true"></span><strong>よくある質問<small>購入前の確認</small></strong><i>→</i></a>
+        <a href="./contact.html"><span aria-hidden="true"></span><strong>お問い合わせ<small>商品・注文のご相談</small></strong><i>→</i></a>
+        <a href="./privacy.html"><span aria-hidden="true"></span><strong>プライバシーポリシー<small>登録情報の取り扱い</small></strong><i>→</i></a>
+        <a href="#notices" data-menu-close><span aria-hidden="true"></span><strong>お知らせ<small>新作・再販・新色</small></strong><i>→</i></a>
+      </nav>
+    </div>
+    <div class="drawer-social" aria-label="販売先とSNS"><p class="drawer-group-title">販売先・SNS</p><a href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリ <span>販売ページへ ↗</span></a><button class="demo-action" type="button" data-message="InstagramのURLはまだ設定されていません。">Instagram <span>準備中</span></button><a href="https://x.com/lux_canis?s=11&amp;t=lWyH4gcoqISd_hmwUv5dXQ" target="_blank" rel="noopener noreferrer">X（旧Twitter）<span>公式アカウントへ ↗</span></a></div>
   </aside>
 
   <footer class="home-footer"><a href="#top" aria-label="ページの一番上へ戻る">Lux Canis</a><nav aria-label="フッターメニュー"><a href="./guide.html">ご利用案内</a><a href="./contact.html">お問い合わせ</a><a href="./privacy.html">プライバシー</a></nav><p>© <span id="year"></span> Lux Canis</p><a class="admin-demo-link" href="./admin.html" rel="nofollow">運営管理</a></footer>

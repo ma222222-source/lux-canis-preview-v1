@@ -164,6 +164,7 @@ function renderAccount() {
   if (state.user) {
     $('#profile-name').textContent = `${state.user.name} さん`;
     $('#profile-email').textContent = state.user.email;
+    $('#profile-created').textContent = state.user.createdAt ? new Date(state.user.createdAt).toLocaleDateString('ja-JP') : '登録日を取得できません';
     $$('[data-pref]').forEach((input) => input.checked = Boolean(state.user.preferences?.[input.dataset.pref]));
   }
   renderRestock();
@@ -195,7 +196,7 @@ function renderRestock() {
 }
 
 function renderNotices() {
-  const label = { news: 'NEW', restock: '再販', color: '新色', important: '重要' };
+  const label = { news: '新作', restock: '再販', color: '新色', important: '重要' };
   $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'NEWS'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><footer><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</footer></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
 }
 

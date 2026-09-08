@@ -174,8 +174,9 @@ function renderNotices() {
 function renderCustomers() {
   $('#customer-list').innerHTML = state.customers.length ? '<div class="data-row head"><span>会員名</span><span>メール</span><span>通知希望</span><span>登録日</span></div>' + state.customers.map((user) => {
     const prefs = user.preferences || {};
-    const count = ['newItems','restock','newColors','email'].filter((key) => prefs[key]).length;
-    return `<div class="data-row"><strong>${esc(user.name)}</strong><span>${esc(user.email)}</span><span>${count}項目</span><span>${date(user.created_at)}</span></div>`;
+    const labels = [['newItems','新作'],['restock','再販'],['newColors','新色'],['email','メール']].filter(([key]) => prefs[key]).map(([,label]) => label);
+    const consent = prefs.privacyAcceptedAt ? `同意済み ${date(prefs.privacyAcceptedAt)}` : '同意記録なし';
+    return `<div class="data-row"><strong>${esc(user.name)}</strong><span>${esc(user.email)}</span><span>${labels.length ? esc(labels.join('・')) : '希望なし'}<small class="muted">${esc(consent)}</small></span><span>${date(user.created_at)}</span></div>`;
   }).join('') : '<div class="empty-card">会員登録はまだありません。</div>';
 }
 

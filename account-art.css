@@ -1,0 +1,66 @@
+/* Account transparency and the Lux Canis light-orbit art direction. */
+.account-page {
+  min-width: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 8% 18%, rgba(214,159,166,.13), transparent 24rem),
+    radial-gradient(circle at 94% 42%, rgba(117,177,185,.13), transparent 28rem),
+    #f8f4ee;
+}
+.account-page .app-header { position: relative; max-width: none; padding-inline: max(24px, calc((100vw - 1320px) / 2)); background: rgba(248,244,238,.88); backdrop-filter: blur(14px); }
+.account-page .brand-sub { color: #81786f; letter-spacing: .14em; }
+.account-page .account-shell { max-width: 1320px; grid-template-columns: 190px minmax(0,1fr); gap: clamp(38px,6vw,86px); }
+.account-page .account-nav { position: sticky; top: 30px; }
+.account-page .account-nav button { position: relative; min-height: 62px; padding-left: 20px; }
+.account-page .account-nav button::before { content:""; position:absolute; left:0; width:7px; height:7px; border-radius:50%; background:#c3b7aa; }
+.account-page .account-nav button.is-active::before { background:#a66f76; box-shadow:0 0 0 5px rgba(166,111,118,.12),0 0 20px rgba(166,111,118,.4); }
+.account-page .account-view h1 { max-width: 780px; font-family:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif; font-size:clamp(2.8rem,6vw,5.2rem); letter-spacing:.045em; }
+.member-benefits { margin: 38px 0 54px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.member-benefits>div { min-height:170px; padding:22px; border:1px solid rgba(37,33,30,.14); border-radius:54px 12px 54px 12px; background:rgba(255,255,255,.68); }
+.member-benefits span { color:#9c6e75; font:600 .7rem Georgia,serif; letter-spacing:.12em; }
+.member-benefits strong { display:block; margin-top:18px; font-size:.92rem; }
+.member-benefits p { margin:8px 0 0; color:#716960; font-size:.74rem; line-height:1.75; }
+.registration-layout { display:grid; grid-template-columns:minmax(300px,.95fr) minmax(330px,1.05fr); gap:clamp(20px,4vw,48px); align-items:start; }
+.registration-form-panel { padding:clamp(22px,4vw,40px); border:1px solid rgba(37,33,30,.15); border-radius:18px; background:rgba(255,255,255,.78); box-shadow:0 22px 70px rgba(48,37,29,.07); }
+.registration-form-panel .auth-tabs { margin-top:-6px; }
+.registration-form-panel .app-form { max-width:none; }
+.data-guide { position:relative; padding:clamp(30px,5vw,54px); overflow:hidden; border-radius:84px 16px 84px 16px; background:#24222b; color:#fff; box-shadow:0 26px 76px rgba(37,31,42,.2); }
+.data-guide::before { content:""; position:absolute; width:370px; aspect-ratio:1; right:-210px; top:-190px; border:1px solid rgba(255,255,255,.16); border-radius:50%; }
+.data-guide::after { content:""; position:absolute; inset:0 auto auto 14%; width:58%; height:2px; background:linear-gradient(90deg,#db9ca4,#c3b3d9,#86b8bd,#d6b26e); }
+.data-guide-kicker { margin:0 0 14px; color:#d7bd92; font-size:.68rem; font-weight:700; letter-spacing:.16em; }
+.data-guide h2 { position:relative; margin:0 0 34px; font:500 clamp(1.5rem,3vw,2.2rem)/1.65 "Yu Mincho",Georgia,serif; letter-spacing:.04em; }
+.data-guide dl { margin:0; }
+.data-guide dl div { padding:18px 0; border-top:1px solid rgba(255,255,255,.14); }
+.data-guide dt { color:#d8c096; font-size:.72rem; font-weight:700; }
+.data-guide dd { margin:7px 0 0; color:#d7d3db; font-size:.76rem; line-height:1.8; }
+.local-like-note { margin:26px 0 0; padding:18px; border-radius:12px; background:rgba(255,255,255,.08); color:#d7d3db; font-size:.73rem; line-height:1.75; }
+.local-like-note strong { display:block; margin-bottom:4px; color:#fff; }
+.profile-data { margin:22px 0 0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid var(--line); border-radius:16px; overflow:hidden; background:rgba(255,255,255,.72); }
+.profile-data div { padding:20px; border-right:1px solid var(--line); }
+.profile-data div:last-child { border-right:0; }
+.profile-data dt { color:#8e6c70; font-size:.7rem; font-weight:700; }
+.profile-data dd { margin:7px 0 0; color:#5f5851; font-size:.76rem; line-height:1.65; }
+.account-page button,.account-page a { touch-action:manipulation; }
+.account-page button:focus-visible,.account-page a:focus-visible,.account-page input:focus-visible { outline:3px solid #b17d83; outline-offset:3px; }
+
+@media(max-width:980px){
+  .account-page .account-shell { grid-template-columns:1fr; gap:30px; }
+  .account-page .account-nav { position:static; display:flex; overflow-x:auto; }
+  .account-page .account-nav button { flex:0 0 auto; padding:0 18px 0 24px; }
+  .registration-layout { grid-template-columns:1fr; }
+  .data-guide { border-radius:56px 14px 56px 14px; }
+}
+@media(max-width:680px){
+  .account-page .app-header { padding:15px 18px; }
+  .account-page .account-shell { padding:30px 18px 76px; }
+  .account-page .account-view h1 { font-size:clamp(2.35rem,10.8vw,3.2rem); line-height:1.28; }
+  .member-benefits { margin:28px 0 36px; display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .member-benefits::-webkit-scrollbar { display:none; }
+  .member-benefits>div { flex:0 0 min(78vw,270px); min-height:154px; scroll-snap-align:start; }
+  .registration-form-panel { padding:22px 18px; }
+  .data-guide { padding:32px 22px; border-radius:46px 12px 46px 12px; }
+  .profile-data { grid-template-columns:1fr; }
+  .profile-data div { border-right:0; border-bottom:1px solid var(--line); }
+  .profile-data div:last-child { border-bottom:0; }
+}
+@media(prefers-reduced-motion:reduce){.member-benefits{scroll-behavior:auto}.account-page *{transition-duration:.01ms!important}}
