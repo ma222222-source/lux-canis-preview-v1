@@ -192,7 +192,20 @@ async function loadNotices() {
   } finally { root.setAttribute('aria-busy', 'false'); }
 }
 
-window.addEventListener('scroll', () => header?.classList.toggle('scrolled', window.scrollY > 32), { passive: true });
+let headerScrollFrame = 0;
+let headerScrolled = null;
+function updateHeaderState() {
+  headerScrollFrame = 0;
+  const next = window.scrollY > 32;
+  if (next === headerScrolled) return;
+  headerScrolled = next;
+  header?.classList.toggle('scrolled', next);
+}
+function scheduleHeaderUpdate() {
+  if (!headerScrollFrame) headerScrollFrame = requestAnimationFrame(updateHeaderState);
+}
+updateHeaderState();
+window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
 $('#year').textContent = new Date().getFullYear();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 loadProducts();
