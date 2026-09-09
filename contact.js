@@ -1,6 +1,6 @@
 const form = document.querySelector('#contact-form');
 const steps = ['input','confirm','complete'];
-function showStep(name) { steps.forEach((step) => { document.querySelector(`#step-${step}`).classList.toggle('is-active', step === name); document.querySelector(`[data-step-label="${step}"]`).classList.toggle('is-active', step === name); }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function showStep(name) { steps.forEach((step) => { document.querySelector(`#step-${step}`).classList.toggle('is-active', step === name); document.querySelector(`[data-step-label="${step}"]`).classList.toggle('is-active', step === name); }); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
 document.querySelector('#to-confirm').addEventListener('click', () => {
   let valid = true;
   form.querySelectorAll('#step-input [required]').forEach((input) => { const error = input.closest('label').querySelector('.field-error'); error.textContent = ''; if (!input.value.trim() || !input.checkValidity()) { error.textContent = input.type === 'email' ? '正しいメールアドレスを入力してください。' : '入力または選択してください。'; valid = false; } });

@@ -18,7 +18,7 @@
   <header class="app-header"><a class="brand" href="./index.html"><span class="brand-name">Lux Canis</span><span class="brand-sub">会員ページ</span></a><a class="app-back" href="./index.html">トップへ戻る</a></header>
   <main class="account-shell">
     <aside class="account-nav" aria-label="マイページメニュー">
-      <button class="is-active" data-view="profile" type="button">マイページ</button><button data-view="notifications" type="button">通知設定</button><button data-view="restock" type="button">再販待ち</button><button data-view="notices" type="button">お知らせ</button>
+      <button class="is-active" data-view="profile" type="button" aria-pressed="true">マイページ</button><button data-view="notifications" type="button" aria-pressed="false">通知設定</button><button data-view="restock" type="button" aria-pressed="false">再販待ち</button><button data-view="notices" type="button" aria-pressed="false">お知らせ</button>
     </aside>
     <div class="account-content">
       <section class="account-view is-active" id="view-profile">
@@ -28,7 +28,7 @@
           <div class="member-benefits" aria-label="会員登録でできること"><div><span>01</span><strong>再販希望を保存</strong><p>気になる商品とカラーを一覧で管理できます。</p></div><div><span>02</span><strong>通知の種類を設定</strong><p>新作・再販・新色の希望をアカウントに残せます。</p></div><div><span>03</span><strong>別の端末で確認</strong><p>同じメールアドレスでログインすると設定を引き継げます。</p></div></div>
           <div class="registration-layout">
             <div class="registration-form-panel">
-              <div class="auth-tabs"><button class="is-active" data-auth="register" type="button">無料で登録</button><button data-auth="login" type="button">ログイン</button></div>
+              <div class="auth-tabs" aria-label="登録またはログイン"><button class="is-active" data-auth="register" type="button" aria-pressed="true">無料で登録</button><button data-auth="login" type="button" aria-pressed="false">ログイン</button></div>
               <form class="app-form" id="account-form" novalidate>
                 <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
                 <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>

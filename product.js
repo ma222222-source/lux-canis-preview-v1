@@ -34,7 +34,20 @@ function render() {
   $('#detail-status').textContent = label; $('#detail-status').hidden = !label;
   thumbnails.innerHTML = '';
   const images = product.images?.length ? product.images : ['/icon.svg'];
-  images.forEach((url, index) => { const button = document.createElement('button'); button.type = 'button'; button.dataset.image = url; button.setAttribute('aria-label', `商品写真${index + 1}を見る`); button.innerHTML = `<img src="${url}" alt="" loading="lazy">`; button.addEventListener('click', () => selectImage(url, `写真${index + 1}`)); thumbnails.append(button); });
+  images.forEach((url, index) => {
+    const button = document.createElement('button');
+    const image = document.createElement('img');
+    button.type = 'button';
+    button.dataset.image = url;
+    button.setAttribute('aria-label', `商品写真${index + 1}を見る`);
+    image.src = url;
+    image.alt = '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    button.append(image);
+    button.addEventListener('click', () => selectImage(url, `写真${index + 1}`));
+    thumbnails.append(button);
+  });
   colors.innerHTML = '';
   const variants = product.variants?.length ? product.variants : (product.colors?.length ? product.colors.map((name, index) => ({ name, image: images[index] || images[0] })) : [{ name: 'カラー指定なし', image: images[0] }]);
   variants.forEach((variant, index) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = variant.name; button.setAttribute('aria-pressed', String(index === 0)); button.addEventListener('click', () => { selectedColor = variant.name; $$('#color-options button').forEach((item) => item.setAttribute('aria-pressed', String(item === button))); selectImage(variant.image || images[0], variant.name); }); colors.append(button); });
@@ -42,7 +55,15 @@ function render() {
   selectImage(variants[0]?.image || images[0], variants[0]?.name || 'メイン');
   const actions = $('#detail-actions');
   if (product.status === 'sold') actions.innerHTML = '<div class="sold-panel"><strong>現在こちらの商品は売り切れています</strong><p>再販されたときに確認できるよう、再販待ちへ登録できます。</p><button class="button button-dark" id="restock-action" type="button">再販待ちへ登録</button></div>';
-  else if (product.salesUrl) actions.innerHTML = `<a class="button button-dark" href="${product.salesUrl}" target="_blank" rel="noopener noreferrer">販売ページで見る・購入する →</a>`;
+  else if (product.salesUrl) {
+    const link = document.createElement('a');
+    actions.replaceChildren(link);
+    link.className = 'button button-dark';
+    link.href = product.salesUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = '販売ページで見る・購入する →';
+  }
   else actions.innerHTML = '<button class="button button-dark" id="sales-pending" type="button">販売ページは準備中です</button>';
   $('#sales-pending')?.addEventListener('click', () => notify('販売URLは現在未設定です。'));
   $('#restock-action')?.addEventListener('click', registerRestock);
@@ -65,7 +86,8 @@ async function load() {
     if (!response.ok) throw new Error(payload.error?.message || '商品が見つかりません。');
     product = payload.product; render();
   } catch (error) {
-    $('.product-detail').innerHTML = `<div class="sold-panel"><strong>${error.message}</strong><p>商品一覧から、別の商品をご覧ください。</p><a class="button button-dark" href="./index.html#items">商品一覧へ戻る</a></div>`;
+    $('.product-detail').innerHTML = '<div class="sold-panel"><strong id="detail-load-error"></strong><p>商品一覧から、別の商品をご覧ください。</p><a class="button button-dark" href="./index.html#items">商品一覧へ戻る</a></div>';
+    $('#detail-load-error').textContent = error.message;
   }
 }
 load();

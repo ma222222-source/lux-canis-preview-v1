@@ -89,7 +89,11 @@ $('#admin-logout').addEventListener('click', async () => {
 $$('[data-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
 function showView(name) {
   $$('.admin-view').forEach((view) => view.classList.toggle('is-active', view.id === `view-${name}`));
-  $$('[data-view]').forEach((button) => button.classList.toggle('is-active', button.dataset.view === name));
+  $$('[data-view]').forEach((button) => {
+    const active = button.dataset.view === name;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
   history.replaceState(null, '', `#${name}`);
 }
 

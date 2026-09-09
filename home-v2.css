@@ -244,6 +244,7 @@
 
 .home-footer { padding: 64px max(20px, calc((100vw - 1180px) / 2)) 36px; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: start; background: #f1ece5; }
 .home-footer nav { display: flex; flex-wrap: wrap; justify-content: end; gap: 12px 26px; font-size: .78rem; }
+.home-footer nav a { min-height: 44px; display: inline-flex; align-items: center; }
 .home-footer p { margin: 0; color: var(--home-muted); font-size: .7rem; }
 .home-footer .admin-demo-link { justify-self: end; }
 .home-v2 .toast { z-index: 110; }

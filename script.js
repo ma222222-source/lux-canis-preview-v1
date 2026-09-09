@@ -85,7 +85,7 @@ function productCard(product, { feature = false } = {}) {
   const label = feature ? `<span class="feature-label">${featureLabels[product.status] || 'おすすめ'}</span>` : '';
   return `<article class="product-card${feature ? ' feature-card' : ''}">
     <a href="./product.html?id=${encodeURIComponent(id)}" aria-label="${esc(product.name)}の商品詳細を見る">
-      <span class="product-card-image">${label}<img src="${esc(image)}" alt="${esc(product.name)}の商品写真" loading="lazy"></span>
+      <span class="product-card-image">${label}<img src="${esc(image)}" alt="${esc(product.name)}の商品写真" loading="lazy" decoding="async"></span>
       <span class="product-card-copy"><strong>${esc(product.name)}</strong><span>${yen(product.price)}</span></span>
     </a>
     <button class="favorite-button" type="button" data-favorite-id="${esc(id)}" aria-label="${esc(product.name)}をいいね${liked ? 'から外す' : 'に追加'}" aria-pressed="${liked}"><span aria-hidden="true">♡</span></button>
@@ -116,15 +116,22 @@ function renderFavorites() {
 function toggleFavorite(id) {
   const product = products.find((item) => String(item.id) === String(id));
   if (!product) return;
+  let liked;
   if (favorites.includes(String(id))) {
     favorites = favorites.filter((favoriteId) => favoriteId !== String(id));
+    liked = false;
     showToast('いいねから外しました。');
   } else {
     favorites = [...favorites, String(id)];
+    liked = true;
     showToast('いいねに追加しました。');
   }
   saveFavorites();
-  renderProducts();
+  $$('[data-favorite-id]').filter((button) => button.dataset.favoriteId === String(id)).forEach((button) => {
+    button.setAttribute('aria-pressed', String(liked));
+    button.setAttribute('aria-label', `${product.name}をいいね${liked ? 'から外す' : 'に追加'}`);
+  });
+  renderFavorites();
 }
 
 document.addEventListener('click', (event) => {

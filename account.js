@@ -31,7 +31,11 @@ window.addEventListener('hashchange', () => showView(location.hash.slice(1), fal
 
 $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   authMode = button.dataset.auth;
-  $$('[data-auth]').forEach((item) => item.classList.toggle('is-active', item === button));
+  $$('[data-auth]').forEach((item) => {
+    const active = item === button;
+    item.classList.toggle('is-active', active);
+    item.setAttribute('aria-pressed', String(active));
+  });
   $('#name-field').hidden = authMode === 'login';
   $('#account-name').required = authMode === 'register';
   $('#password-confirm-field').hidden = authMode === 'login';
