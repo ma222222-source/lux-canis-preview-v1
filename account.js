@@ -174,14 +174,25 @@ function renderAccount() {
   renderRestock();
 }
 
+function setPreferencesBusy(busy) {
+  $('#preference-list').setAttribute('aria-busy', String(busy));
+  $$('[data-pref]').forEach((item) => { item.disabled = busy; });
+}
+
 $$('[data-pref]').forEach((input) => input.addEventListener('change', async () => {
   if (!state.user) return;
   const preferences = Object.fromEntries($$('[data-pref]').map((item) => [item.dataset.pref, item.checked]));
+  setPreferencesBusy(true);
   try {
     const result = await api('auth/preferences', { method: 'PUT', body: JSON.stringify(preferences) });
     state.user.preferences = result.preferences;
     notify('通知設定を保存しました。');
-  } catch (error) { input.checked = !input.checked; notify(error.message); }
+  } catch (error) {
+    input.checked = !input.checked;
+    notify(`${error.message} 設定を元に戻しました。`);
+  } finally {
+    setPreferencesBusy(false);
+  }
 }));
 
 async function loadRestock() {
