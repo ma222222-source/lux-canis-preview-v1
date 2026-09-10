@@ -76,7 +76,8 @@
 .home-hero-photo,
 .home-hero-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
 .home-hero-photo { z-index: -2; object-fit: cover; object-position: center; }
-.home-hero-shade { z-index: -1; background: linear-gradient(180deg, rgba(29, 23, 18, .24), rgba(29, 23, 18, .08) 42%, rgba(29, 23, 18, .46)); }
+.home-hero-shade { z-index: -1; background: linear-gradient(180deg, rgba(23, 20, 18, .64), rgba(23, 20, 18, .34) 28%, rgba(23, 20, 18, .62) 52%, rgba(23, 20, 18, .66) 100%); }
+.home-header:not(.scrolled) .home-brand { text-shadow: 0 1px 3px rgba(0, 0, 0, .7); }
 .home-hero-copy { width: min(92vw, 650px); padding: 112px 24px 92px; text-align: center; color: #fff; }
 
 .home-hero-logo {
@@ -93,12 +94,14 @@
 
 .home-hero h1 {
   margin: 0;
-  font: 500 clamp(2.5rem, 6vw, 5.6rem)/1.34 "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
+  font: 500 clamp(1.8rem, 5vw, 3.6rem)/1.5 "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
   letter-spacing: .08em;
-  text-shadow: 0 2px 24px rgba(23, 17, 13, .35);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .65), 0 4px 20px rgba(0, 0, 0, .25);
 }
 
-.home-hero-copy > p { margin: 22px 0 28px; font-size: clamp(.84rem, 1.3vw, 1rem); letter-spacing: .12em; }
+.home-hero-copy > p { margin: 22px 0 28px; font-size: clamp(.875rem, 1.3vw, 1rem); letter-spacing: .06em; font-weight: 500; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+.home-hero h1 span { display: block; }
+.home-v2 .item-section .category-filters { margin-top: 28px; margin-bottom: 24px; }
 .home-hero-button,
 .outline-button,
 .light-button {
@@ -119,6 +122,7 @@
 .home-hero-button:hover { background: var(--home-ink); color: #fff; border-color: var(--home-ink); }
 .scroll-cue { position: absolute; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); translate: -50% 0; min-height: 52px; display: grid; place-items: center; gap: 6px; color: #fff; font-size: .67rem; letter-spacing: .12em; }
 .scroll-cue i { width: 1px; height: 28px; background: currentColor; }
+.scroll-cue { font-size: .75rem; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
 
 .home-section { max-width: 1320px; margin: 0 auto; padding: clamp(82px, 10vw, 142px) clamp(20px, 4vw, 48px); }
 .home-heading > p { margin: 0 0 12px; color: var(--home-gold); font-size: .72rem; font-weight: 700; letter-spacing: .18em; }
@@ -179,6 +183,8 @@
 .catalog-empty p, .favorites-empty p { margin: 0; }
 .shop-link-wrap { margin-top: 36px; text-align: center; }
 .outline-button:hover { background: var(--home-ink); color: #fff; }
+.home-v2 .filter-button:active, .favorite-button:active { background-color: var(--home-cream); color: var(--home-ink); }
+.home-v2 .filter-button.is-active:active { background-color: var(--home-ink); color: #fff; }
 
 .favorites-section { padding-top: 0; }
 .favorites-section .product-rail { margin-top: 34px; }
@@ -213,6 +219,7 @@
 .purchase-banner h2 { margin: 0; font: 500 clamp(2rem, 5vw, 4.7rem)/1.4 "Yu Mincho", Georgia, serif; }
 .purchase-banner ul { margin: 30px 0; padding: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 28px; list-style: none; font-size: .82rem; }
 .purchase-banner li::before { content: "・"; }
+.purchase-banner .purchase-discount-note { margin: -12px 0 30px; font-size: .82rem; font-weight: 400; letter-spacing: .03em; line-height: 1.8; }
 .purchase-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 18px 28px; }
 .light-button { background: #fff; color: var(--home-ink); border-color: #fff; }
 .purchase-actions > a:last-child { min-height: 44px; display: inline-flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,.5); font-size: .82rem; }
@@ -269,7 +276,7 @@
   .home-hero-photo { object-position: 51% center; }
   .home-hero-copy { padding-top: 92px; padding-bottom: 100px; }
   .home-hero-logo { width: 150px; border-width: 7px; margin-bottom: 20px; }
-  .home-hero h1 { font-size: clamp(2.25rem, 10vw, 3.2rem); line-height: 1.42; }
+  .home-hero h1 { font-size: clamp(1.65rem, 7.2vw, 2.5rem); line-height: 1.55; letter-spacing: .035em; }
   .home-hero-copy > p { max-width: 300px; margin-inline: auto; line-height: 1.9; }
   .home-section { padding: 78px 18px; }
   .home-heading h2 { font-size: clamp(1.9rem, 9vw, 2.7rem); }

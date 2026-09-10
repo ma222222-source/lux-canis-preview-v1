@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="./home-art.css">
   <script defer src="./script.js"></script>
 </head>
-<body class="home-v2">
+<body class="home-v2" id="top">
   <a class="skip-link" href="#main">本文へ移動</a>
-  <header class="home-header" id="top">
+  <header class="home-header">
     <a class="home-brand" href="#top" aria-label="ページの一番上へ戻る">Lux Canis</a>
     <button class="menu-button" type="button" aria-label="詳細メニューを開く" aria-controls="site-menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </header>
@@ -25,8 +25,8 @@
       <div class="home-hero-shade"></div>
       <div class="home-hero-copy">
         <img class="home-hero-logo" src="./assets/lux-canis-logo.jpg" alt="Lux Canis ロゴ" width="1280" height="1280">
-        <h1 id="hero-title">光をまとう、<br>わたしだけの色。</h1>
-        <p>心を込めて仕立てる、ハンドメイドアクセサリー。</p>
+        <h1 id="hero-title"><span>光をまとう、</span><span>わたしだけの色。</span></h1>
+        <p>心を込めて作るアクセサリー</p>
         <a class="home-hero-button" href="#items">商品を見る</a>
       </div>
       <a class="scroll-cue" href="#categories"><span>下へスクロール</span><i aria-hidden="true"></i></a>
@@ -79,7 +79,7 @@
       <div class="home-notice-list" id="home-notice-list" aria-live="polite" aria-busy="true"><p class="rail-loading">お知らせを読み込んでいます…</p></div>
     </section>
 
-    <section class="purchase-banner" aria-labelledby="purchase-title"><p>購入について</p><h2 id="purchase-title">現在はメルカリで<br>販売しています。</h2><ul><li>発送目安 1〜2日</li><li>まとめ買い割引あり</li><li>作品により個数制限あり</li></ul><div class="purchase-actions"><a class="light-button" href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリへ進む <span aria-hidden="true">↗</span></a><a href="./guide.html#purchase">詳しく見る →</a></div></section>
+<section class="purchase-banner" aria-labelledby="purchase-title"><p>購入について</p><h2 id="purchase-title">現在はメルカリで<br>販売しています。</h2><ul><li>発送目安 1〜2日</li><li>複数購入割引あり</li><li>作品により個数制限あり</li></ul><p class="purchase-discount-note">点数・商品により割引額が異なります</p><div class="purchase-actions"><a class="light-button" href="https://jp.mercari.com/user/profile/600352309?utm_medium=share&amp;utm_source=ios" target="_blank" rel="noopener noreferrer">メルカリへ進む <span aria-hidden="true">↗</span></a><a href="./guide.html#purchase">詳しく見る →</a></div></section>
   </main>
 
   <div class="menu-scrim" data-menu-close hidden></div>

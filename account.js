@@ -7,6 +7,18 @@ const toast = $('#toast');
 const PRIVACY_VERSION = '2026-08-17';
 let authMode = 'register';
 let toastTimer;
+let authBusy = false;
+
+function returnToProduct() {
+  const next = new URLSearchParams(location.search).get('next');
+  if (!next) return false;
+  try {
+    const url = new URL(next, location.origin);
+    if (url.origin !== location.origin || !['/product', '/product.html'].includes(url.pathname) || !url.searchParams.get('id')) return false;
+    location.assign(url.pathname + url.search);
+    return true;
+  } catch { return false; }
+}
 
 const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 async function api(path, options = {}) {
@@ -30,6 +42,7 @@ nav.forEach((button) => button.addEventListener('click', () => showView(button.d
 window.addEventListener('hashchange', () => showView(location.hash.slice(1), false));
 
 $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
+  if (authBusy) return;
   authMode = button.dataset.auth;
   $$('[data-auth]').forEach((item) => {
     const active = item === button;
@@ -68,6 +81,7 @@ $('#privacy-consent').addEventListener('change', (event) => {
 
 $('#account-form').addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (authBusy) return;
   const form = event.currentTarget;
   $('#auth-error').textContent = '';
   $('#password-confirm-error').textContent = '';
@@ -84,19 +98,42 @@ $('#account-form').addEventListener('submit', async (event) => {
   }
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const button = $('#account-submit'); button.disabled = true; button.textContent = '処理中…';
+  authBusy = true;
+  const submittedMode = authMode;
+  form.setAttribute('aria-busy', 'true');
+  $$('[data-auth]').forEach((item) => { item.disabled = true; });
   try {
     const payload = { name: $('#account-name').value, email: $('#account-email').value, password: $('#account-password').value };
     if (authMode === 'register') Object.assign(payload, { privacyConsent: $('#privacy-consent').checked, privacyVersion: PRIVACY_VERSION });
     const result = await api(`auth/${authMode}`, { method: 'POST', body: JSON.stringify(payload) });
     state.user = result.user;
-    form.reset(); renderAccount(); await loadRestock();
-    notify(authMode === 'register' ? '会員登録が完了しました。' : 'ログインしました。');
-  } catch (error) { $('#auth-error').textContent = error.message; } finally { button.disabled = false; button.textContent = authMode === 'register' ? '無料で登録する' : 'ログインする'; }
+    form.reset();
+    $('#account-password').type = $('#account-password-confirm').type = 'password';
+    $('#toggle-password').textContent = '表示';
+    $('#toggle-password').setAttribute('aria-label', 'パスワードを表示');
+    renderAccount();
+    if (returnToProduct()) return;
+    await loadRestock();
+    notify(submittedMode === 'register' ? '会員登録が完了しました。' : 'ログインしました。');
+  } catch (error) { $('#auth-error').textContent = error.message; } finally {
+    authBusy = false;
+    form.setAttribute('aria-busy', 'false');
+    $$('[data-auth]').forEach((item) => { item.disabled = false; });
+    button.disabled = false;
+    button.textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
+  }
 });
 
-$('#logout-button').addEventListener('click', async () => {
-  await api('auth/logout', { method: 'POST', body: '{}' }).catch(() => {});
-  state.user = null; state.restock = []; renderAccount(); showView('profile'); notify('ログアウトしました。');
+$('#logout-button').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  if (button.disabled) return;
+  button.disabled = true;
+  button.textContent = 'ログアウト中…';
+  try {
+    await api('auth/logout', { method: 'POST', body: '{}' });
+    state.user = null; state.restock = []; renderAccount(); showView('profile'); notify('ログアウトしました。');
+  } catch { notify('ログアウトできませんでした。通信を確認して、もう一度お試しください。'); }
+  finally { button.disabled = false; button.textContent = 'ログアウト'; }
 });
 
 const deleteDialog = $('#delete-account-dialog');
@@ -206,22 +243,41 @@ function renderRestock() {
   if (!state.user) { root.innerHTML = '<div class="account-empty"><strong>ログインすると再販待ちを確認できます</strong><a class="button button-dark" href="#">ログイン・会員登録へ</a></div>'; root.querySelector('a').onclick = (event) => { event.preventDefault(); showView('profile'); }; return; }
   root.innerHTML = state.restock.length ? state.restock.map((item) => `<article class="restock-item"><img src="${esc(item.images?.[0] || '/icon.svg')}" alt="${esc(item.product_name)}の商品写真" loading="lazy"><div><strong>${esc(item.product_name)}</strong><p>${esc(item.color || 'カラー指定なし')} / ${new Date(item.created_at).toLocaleDateString('ja-JP')} 登録</p></div><button type="button" data-remove-restock="${esc(item.id)}">解除</button></article>`).join('') : '<div class="account-empty"><strong>再販待ちの商品はありません</strong><a class="button button-dark" href="./index.html#items">商品を見る</a></div>';
   $$('[data-remove-restock]').forEach((button) => button.addEventListener('click', async () => {
-    try { await api(`restock/${button.dataset.removeRestock}`, { method: 'DELETE', body: '{}' }); await loadRestock(); notify('再販待ちを解除しました。'); } catch (error) { notify(error.message); }
+    if (button.disabled) return;
+    button.disabled = true; button.textContent = '解除中…';
+    try { await api(`restock/${button.dataset.removeRestock}`, { method: 'DELETE', body: '{}' }); await loadRestock(); notify('再販待ちを解除しました。'); }
+    catch (error) { notify(error.message); }
+    finally { button.disabled = false; button.textContent = '解除'; }
   }));
 }
 
 function renderNotices() {
+  if (state.notices === null) {
+    $('#notice-list').innerHTML = '<div class="account-empty"><strong>お知らせを読み込めませんでした</strong><button class="button button-dark" type="button" id="retry-account-notices">もう一度読み込む</button></div>';
+    $('#retry-account-notices').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      button.textContent = '読み込み中…';
+      try { state.notices = (await api('notices')).notices; renderNotices(); }
+      catch { notify('通信状態を確認して、もう一度お試しください。'); button.disabled = false; button.textContent = 'もう一度読み込む'; }
+    });
+    return;
+  }
   const label = { news: '新作', restock: '再販', color: '新色', important: '重要' };
   $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'お知らせ'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><footer><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</footer></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
 }
 
 async function init() {
-  try {
-    const [me, notices] = await Promise.all([api('auth/me'), api('notices')]);
-    state.user = me.user;
-    state.notices = notices.notices;
-    renderAccount(); renderNotices(); await loadRestock();
-  } catch (error) { notify(error.message); renderAccount(); }
+  const [me, notices] = await Promise.allSettled([api('auth/me'), api('notices')]);
+  if (me.status === 'fulfilled') state.user = me.value.user;
+  else notify('ログイン状態を確認できませんでした。ページを再読み込みしてください。');
+  renderAccount();
+  if (notices.status === 'fulfilled') { state.notices = notices.value.notices; renderNotices(); }
+  else {
+    state.notices = null;
+    renderNotices();
+  }
+  await loadRestock();
   showView(location.hash.slice(1), false);
 }
 init();
