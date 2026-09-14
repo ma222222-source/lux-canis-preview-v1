@@ -1,4 +1,6 @@
 const base = process.env.BASE_URL || 'http://127.0.0.1:8788';
+if (!['127.0.0.1', 'localhost', '[::1]'].includes(new URL(base).hostname)) throw new Error('Destructive smoke tests are restricted to localhost.');
+const testPassword = 'local-smoke-password-1234';
 let adminCookie = '';
 let userCookie = '';
 
@@ -53,7 +55,7 @@ ok((await fetch(`${base}${upload.data.url}`)).status === 404, '削除した商�
 const email = `smoke-${Date.now()}@example.com`;
 const withoutConsent = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234' } });
 ok(withoutConsent.response.status === 400 && withoutConsent.data.error?.code === 'PRIVACY_CONSENT_REQUIRED', '同意なしの会員登録を拒否');
-const registered = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: 'test-pass-1234', privacyConsent: true } });
+const registered = await call('auth/register', { method: 'POST', body: { name: '動作確認会員', email, password: testPassword, privacyConsent: true } });
 userCookie = cookieFrom(registered.response);
 ok(registered.response.status === 201 && userCookie.startsWith('lux_session='), '会員登録とログイン');
 ok(/HttpOnly/i.test(registered.response.headers.get('set-cookie') || '') && /Secure/i.test(registered.response.headers.get('set-cookie') || '') && /SameSite=Strict/i.test(registered.response.headers.get('set-cookie') || ''), '会員Cookieの安全設定');
@@ -81,7 +83,7 @@ ok((await call(`notices/${notice.data.id}`, { method: 'PUT', cookie: adminCookie
 ok((await call('notices')).data.notices.some((item) => item.id === notice.data.id && item.title === '更新したお知らせ' && item.type === 'restock'), '編集したお知らせを公開反映');
 ok((await call(`notices/${notice.data.id}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, 'お知らせを削除');
 ok((await call(`products/${productId}`, { method: 'DELETE', cookie: adminCookie, body: {} })).response.ok, '商品を削除');
-ok((await call('auth/account', { method: 'DELETE', cookie: userCookie, body: { password: 'test-pass-1234', confirmation: '削除' } })).response.ok, '動作確認会員を削除');
+ok((await call('auth/account', { method: 'DELETE', cookie: userCookie, body: { password: testPassword, confirmation: '削除' } })).response.ok, '動作確認会員を削除');
 ok((await call('auth/me', { cookie: userCookie })).data.user === null, '削除後の会員セッションを無効化');
 ok((await call('admin/logout', { method: 'POST', cookie: adminCookie, body: {} })).response.ok, '管理者ログアウト');
 

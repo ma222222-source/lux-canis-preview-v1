@@ -7,6 +7,7 @@ const editor = $('#product-editor');
 const productForm = $('#product-form');
 const toast = $('#toast');
 let toastTimer;
+let productSaving = false;
 
 const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 const yen = (value) => Number(value) > 0 ? `¥${Number(value).toLocaleString('ja-JP')}` : '価格未設定';
@@ -81,9 +82,13 @@ $('#toggle-admin-password').addEventListener('click', () => {
   $('#toggle-admin-password').textContent = input.type === 'password' ? '表示' : '隠す';
 });
 
-$('#admin-logout').addEventListener('click', async () => {
-  await api('admin/logout', { method: 'POST', body: '{}' }).catch(() => {});
-  showLogin();
+$('#admin-logout').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  if (button.disabled) return;
+  button.disabled = true;
+  try { await api('admin/logout', { method: 'POST', body: '{}' }); showLogin(); }
+  catch { notify('ログアウトできませんでした。通信を確認して再度お試しください。'); }
+  finally { button.disabled = false; }
 });
 
 $$('[data-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.view)));
@@ -104,6 +109,7 @@ async function loadAll() {
       api('admin/overview'), api('products?admin=1'), api('notices?admin=1'), api('admin/users'), api('contacts'), api('admin/restock')
     ]);
     state.metrics = overview.metrics;
+    state.readiness = overview.readiness;
     state.products = products.products;
     state.notices = notices.notices;
     state.customers = users.users;
@@ -126,6 +132,8 @@ function renderMetrics() {
   $('#metric-grid').innerHTML = labels.map(([key, label]) => `<article class="metric-card"><span>${label}</span><strong>${Number(state.metrics[key] || 0).toLocaleString('ja-JP')}</strong></article>`).join('');
   $('#metric-grid').setAttribute('aria-busy', 'false');
   const actions = [];
+  if (!state.readiness?.adminPasswordStrong) actions.push('<div class="action-row"><div><strong>本運用前に管理者パスワードの変更が必要です</strong><small>推測されやすいパスワードです。管理画面へのリンクを隠しても、お客様の情報は保護できません。</small></div></div>');
+  if (!state.readiness?.emailReady) actions.push('<div class="action-row"><div><strong>メール本人確認・パスワード復旧は未接続です</strong><small>お客様の会員登録を本格運用する前に、送信元の確認とメール機能の接続が必要です。</small></div></div>');
   if (state.metrics.contacts) actions.push(`<div class="action-row"><div><strong>未対応の問い合わせがあります</strong><small>${state.metrics.contacts}件</small></div><button class="button button-ghost action-button" type="button" data-action-view="contacts">確認する</button></div>`);
   state.products.forEach((item) => {
     const issues = [];
@@ -135,7 +143,7 @@ function renderMetrics() {
     if (!issues.length) return;
     actions.push(`<div class="action-row"><div><strong>${esc(item.name)}</strong><small>${issues.join('・')}が未設定です</small></div><button class="button button-ghost action-button" type="button" data-fix-product="${esc(item.id)}">編集する</button></div>`);
   });
-  $('#action-list').innerHTML = actions.length ? actions.join('') : '<div class="action-row action-good"><div><strong>現在、優先対応はありません</strong><small>公開準備は整っています</small></div><span>良好</span></div>';
+  $('#action-list').innerHTML = actions.length ? actions.join('') : '<div class="action-row action-good"><div><strong>現在、未対応の商品・問い合わせはありません</strong><small>定期的な動作確認とバックアップ確認を続けてください</small></div></div>';
   $$('[data-action-view]').forEach((button) => button.addEventListener('click', () => showView(button.dataset.actionView)));
   $$('[data-fix-product]').forEach((button) => button.addEventListener('click', () => {
     const product = state.products.find((item) => item.id === button.dataset.fixProduct);
@@ -199,6 +207,7 @@ function renderRestock() {
 $$('[data-new-product]').forEach((button) => button.addEventListener('click', () => openEditor()));
 $$('[data-close-editor]').forEach((button) => button.addEventListener('click', requestCloseEditor));
 editor.addEventListener('click', (event) => { if (event.target === editor) requestCloseEditor(); });
+editor.addEventListener('cancel', (event) => { event.preventDefault(); requestCloseEditor(); });
 
 function discardPendingImages() {
   for (const url of state.pendingFiles.keys()) URL.revokeObjectURL(url);
@@ -206,6 +215,7 @@ function discardPendingImages() {
 }
 
 function requestCloseEditor() {
+  if (productSaving) return;
   if (state.editorDirty && !confirm('保存していない変更があります。閉じてもよろしいですか？')) return;
   discardPendingImages();
   state.editorDirty = false;
@@ -213,6 +223,8 @@ function requestCloseEditor() {
 }
 
 function openEditor(product = null) {
+  $('#editor-error').hidden = true;
+  $('#editor-error').textContent = '';
   state.editingId = product?.id || null;
   state.images = [...(product?.images || [])];
   discardPendingImages();
@@ -296,21 +308,42 @@ productForm.addEventListener('change', () => { state.editorDirty = true; });
 
 productForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (productSaving) return;
+  productSaving = true;
+  $('#editor-error').hidden = true;
+  $('#editor-error').textContent = '';
+  productForm.setAttribute('aria-busy', 'true');
+  const data = Object.fromEntries(new FormData(productForm));
+  const published = productForm.elements.published.checked;
+  const lockedFields = $$('input, textarea, select', productForm).filter(field => !field.disabled);
+  lockedFields.forEach(field => { field.disabled = true; });
   setBusy(productForm, true);
+  const lockedButtons = $$('button', productForm).filter(button => !button.disabled);
+  lockedButtons.forEach(button => { button.disabled = true; });
   try {
     await uploadImages();
-    const data = Object.fromEntries(new FormData(productForm));
     const payload = {
       name: data.name, price: Number(data.price), sortOrder: Number(data.sortOrder), category: data.category, status: data.status,
       stockQuantity: Number(data.stockQuantity), variants: state.variants.map((variant) => ({ name: variant.name.trim(), image: variant.image })).filter((variant) => variant.name), material: data.material, fitting: data.fitting,
-      description: data.description, salesUrl: data.salesUrl, published: productForm.elements.published.checked, images: state.images
+      description: data.description, salesUrl: data.salesUrl, published, images: state.images
     };
     await api(state.editingId ? `products/${state.editingId}` : 'products', { method: state.editingId ? 'PUT' : 'POST', body: JSON.stringify(payload) });
     state.editorDirty = false;
     editor.close();
     await loadAll();
-    notify('商品を保存し、公開サイトへ反映しました。');
-  } catch (error) { notify(error.message); renderImagePreviews(); renderVariantEditor(); } finally { setBusy(productForm, false); }
+    notify(payload.published ? '商品を保存しました。公開中の内容を更新しました。' : '商品を非公開で保存しました。');
+  } catch (error) {
+    $('#editor-error').textContent = error.message;
+    $('#editor-error').hidden = false;
+    renderImagePreviews();
+    renderVariantEditor();
+  } finally {
+    productSaving = false;
+    productForm.setAttribute('aria-busy', 'false');
+    lockedButtons.forEach(button => { button.disabled = false; });
+    lockedFields.forEach(field => { field.disabled = false; });
+    setBusy(productForm, false);
+  }
 });
 
 $('#delete-product').addEventListener('click', async () => {

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./account-art.css">
   <link rel="stylesheet" href="./visibility.css">
   <script defer src="./account.js"></script>
+  <script defer src="./account-security.js"></script>
   <title>マイページ | Lux Canis</title>
 </head>
 <body class="account-page">
@@ -22,7 +23,8 @@
     </aside>
     <div class="account-content">
       <section class="account-view is-active" id="view-profile">
-        <p class="kicker">会員ページ</p><h1>光を、<br>つないでおく。</h1>
+        <h1 id="account-page-title">会員登録</h1>
+        <p id="account-security-feedback" role="status" aria-live="polite"></p>
         <div id="signed-out">
           <p class="view-lede">会員登録すると、再販希望と通知設定をアカウントに保存し、別の端末からも確認できます。</p>
           <div class="member-benefits" aria-label="会員登録でできること"><div><span>01</span><strong>再販希望を保存</strong><p>気になる商品とカラーを一覧で管理できます。</p></div><div><span>02</span><strong>通知の種類を設定</strong><p>新作・再販・新色の希望をアカウントに残せます。</p></div><div><span>03</span><strong>別の端末で確認</strong><p>同じメールアドレスでログインすると設定を引き継げます。</p></div></div>
@@ -32,7 +34,7 @@
               <form class="app-form" id="account-form" novalidate>
                 <label id="name-field"><span>お名前 <em>必須</em></span><input id="account-name" name="name" autocomplete="name" maxlength="80" required><small class="field-error"></small></label>
                 <label><span>メールアドレス <em>必須</em></span><input id="account-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" required><small class="field-error"></small></label>
-                <label><span>パスワード <em>必須</em></span><span class="password-input"><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><button type="button" id="toggle-password" aria-label="パスワードを表示">表示</button></span><small>8文字以上。保存時は元の文字が分からない形に変換します。</small><small class="field-error"></small></label>
+                <label><span>パスワード <em>必須</em></span><span class="password-input"><input id="account-password" name="password" type="password" autocomplete="new-password" minlength="15" maxlength="200" required><button type="button" id="toggle-password" aria-label="パスワードを表示">表示</button></span><small id="password-help">15文字以上。他のサイトと使い回さないパスワードを設定してください。</small><small class="field-error"></small></label>
                 <label id="password-confirm-field"><span>パスワード（確認） <em>必須</em></span><input id="account-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="200" required><small class="field-error" id="password-confirm-error"></small></label>
                 <p class="account-data-note" id="account-data-note">登録直後にログイン状態になります。ログインは安全なCookieで30日間維持されます。</p>
                 <div class="consent-field" id="privacy-consent-field">
@@ -43,9 +45,10 @@
                 <p class="auth-error" id="auth-error" role="alert"></p>
                 <button class="button button-dark" type="submit" id="account-submit">無料で登録する</button>
               </form>
+              <details class="account-recovery-note"><summary>パスワードを忘れた場合について</summary><p>現在、自動再設定メールは準備中です。元のパスワードを運営者が調べてお伝えすることはできません。登録時のパスワードは、端末のパスワード管理機能などで大切に保管してください。</p><a href="./contact.html">お問い合わせ</a></details>
             </div>
             <aside class="data-guide" aria-labelledby="data-guide-title">
-              <p class="data-guide-kicker">登録前に分かること</p><h2 id="data-guide-title">お預かりする情報を、<br>先にお伝えします。</h2>
+              <h2 id="data-guide-title">登録情報について</h2>
               <dl><div><dt>保存する情報</dt><dd>お名前、メールアドレス、変換済みパスワード、通知設定、再販希望、登録日、同意日時</dd></div><div><dt>運営者が確認できる情報</dt><dd>お名前、メールアドレス、通知設定、登録日、再販を希望した商品・カラー・日時</dd></div><div><dt>保存しない情報</dt><dd>住所、クレジットカード、メルカリでの購入履歴</dd></div><div><dt>運営者にも見えない情報</dt><dd>元のパスワード。復元できない形に変換して保存します。</dd></div></dl>
               <p class="local-like-note"><strong>いいねについて</strong>いいねは現在、この端末のブラウザ内だけに保存されます。会員アカウントには同期されません。</p>
             </aside>
@@ -55,6 +58,21 @@
           <div class="profile-card"><span class="profile-avatar" aria-hidden="true">LC</span><div><strong id="profile-name"></strong><p id="profile-email"></p></div></div>
           <dl class="profile-data"><div><dt>登録日</dt><dd id="profile-created"></dd></div><div><dt>保存されている内容</dt><dd>会員情報・通知設定・再販待ち</dd></div><div><dt>パスワード</dt><dd>元の文字は運営者にも表示されません</dd></div></dl>
           <div class="profile-actions"><a href="./index.html#items">商品を見る</a><button type="button" id="logout-button">ログアウト</button></div>
+          <section class="account-security" aria-labelledby="account-security-title">
+            <h2 id="account-security-title">ログインの安全設定</h2>
+            <details><summary>パスワードを変更する</summary>
+              <form id="change-password-form" class="app-form">
+                <p>変更すると、この端末を含むすべての端末からログアウトします。新しいパスワードでログインし直してください。</p>
+                <label for="current-password">現在のパスワード</label><input id="current-password" type="password" autocomplete="current-password" maxlength="200" required>
+                <label for="new-password">新しいパスワード</label><input id="new-password" type="password" autocomplete="new-password" minlength="15" maxlength="200" aria-describedby="new-password-help" required>
+                <small id="new-password-help">15〜200文字。先頭・末尾の空白は使えません。他のサイトと使い回さないでください。</small>
+                <label for="confirm-new-password">新しいパスワード（確認）</label><input id="confirm-new-password" type="password" autocomplete="new-password" minlength="15" maxlength="200" required>
+                <p id="change-password-status" role="status" aria-live="polite"></p>
+                <button class="button button-dark" type="submit">変更して全端末からログアウト</button>
+              </form>
+            </details>
+            <details><summary>すべての端末からログアウトする</summary><p>共有端末でログアウトし忘れたときに使えます。この端末もログアウトします。</p><button class="button button-outline" id="logout-all-button" type="button">全端末からログアウトする</button><p id="logout-all-status" role="status" aria-live="polite"></p></details>
+          </section>
           <section class="account-danger" aria-labelledby="delete-account-title"><div><h2 id="delete-account-title">アカウントの削除</h2><p id="delete-account-description">ログイン情報、通知設定、再販待ちを完全に削除します。この操作は取り消せません。</p></div><button type="button" id="open-delete-account" aria-describedby="delete-account-description">削除手続きへ</button></section>
         </div>
       </section>
@@ -66,9 +84,9 @@
           <label class="switch-row"><span><strong>新作のお知らせ</strong><small>新しいアクセサリーが追加されたとき</small></span><input type="checkbox" data-pref="newItems"><i></i></label>
           <label class="switch-row"><span><strong>再販のお知らせ</strong><small>再販待ちの商品が入荷したとき</small></span><input type="checkbox" data-pref="restock"><i></i></label>
           <label class="switch-row"><span><strong>新しいカラー</strong><small>新色が追加されたとき</small></span><input type="checkbox" data-pref="newColors"><i></i></label>
-          <label class="switch-row"><span><strong>メールで受け取る</strong><small>配信機能の接続後に利用できます</small></span><input type="checkbox" data-pref="email"><i></i></label>
+          <div class="switch-row"><span><strong>メールで受け取る：準備中</strong><small>現在はメールを送信しません。配信開始後にあらためて受信の希望を確認します。</small></span></div>
         </div>
-        <p class="settings-note">現在はサイト内のお知らせが利用できます。メール自動送信はまだ接続していません。</p>
+        <p class="settings-note">選んだ種類を、この会員ページの「お知らせ」に表示します。重要なお知らせは設定に関係なく表示します。メール・スマホへの自動通知は現在ありません。</p>
       </section>
 
       <section class="account-view" id="view-restock"><p class="kicker">再販リクエスト</p><h1>再販待ち</h1><p class="view-lede">商品詳細から登録した商品とカラーを確認・解除できます。</p><div id="restock-list"></div></section>

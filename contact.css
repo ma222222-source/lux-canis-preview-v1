@@ -4,3 +4,7 @@
 .contact-step h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.5; }
 .confirm-list dd { min-width: 0; overflow-wrap: anywhere; }
 .contact-step button:disabled { opacity: .6; cursor: wait; }
+.contact-intro h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); line-height: 1.5; letter-spacing: .02em; }
+.contact-shell { padding-block: 36px 64px; gap: 32px; }
+.contact-step .field-error:empty, .contact-submit-error:empty { display: none; }
+.contact-intro > p { line-height: 1.85; }

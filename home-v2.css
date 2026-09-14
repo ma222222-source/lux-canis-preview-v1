@@ -154,7 +154,7 @@
   scroll-padding-inline: 0 20px;
   scrollbar-width: thin;
   scrollbar-color: rgba(37,33,30,.28) transparent;
-  padding: 0 max(20px, calc((100vw - 1320px) / 2)) 22px 0;
+  padding: 0 0 18px;
 }
 .home-v2 .product-grid { grid-template-columns: none; }
 .product-rail::-webkit-scrollbar { height: 4px; }
@@ -283,7 +283,7 @@
   .category-grid { margin-top: 38px; }
   .category-card span { left: 8px; right: 8px; bottom: 8px; padding-inline: 5px; font-size: .72rem; }
   .feature-section { padding-left: 18px; padding-right: 0; }
-  .home-v2 .product-rail { gap: 12px; padding-right: 18px; }
+  .home-v2 .product-rail { gap: 12px; padding-right: 0; }
   .home-v2 .product-card { flex-basis: min(70vw, 270px); }
   .home-v2 .feature-card { flex-basis: min(82vw, 330px); }
   .category-filters { margin-inline: -18px; padding-inline: 18px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }

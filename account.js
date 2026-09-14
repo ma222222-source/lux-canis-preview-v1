@@ -4,7 +4,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const views = $$('.account-view');
 const nav = $$('.account-nav button');
 const toast = $('#toast');
-const PRIVACY_VERSION = '2026-08-17';
+const PRIVACY_VERSION = '2026-09-10';
 let authMode = 'register';
 let toastTimer;
 let authBusy = false;
@@ -44,6 +44,7 @@ window.addEventListener('hashchange', () => showView(location.hash.slice(1), fal
 $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   if (authBusy) return;
   authMode = button.dataset.auth;
+  $('#account-page-title').textContent = authMode === 'register' ? '会員登録' : 'ログイン';
   $$('[data-auth]').forEach((item) => {
     const active = item === button;
     item.classList.toggle('is-active', active);
@@ -56,6 +57,8 @@ $$('[data-auth]').forEach((button) => button.addEventListener('click', () => {
   $('#privacy-consent-field').hidden = authMode === 'login';
   $('#privacy-consent').required = authMode === 'register';
   $('#account-password').autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
+  $('#account-password').minLength = authMode === 'register' ? 15 : 8;
+  $('#password-help').textContent = authMode === 'register' ? '15文字以上。他のサイトと使い回さないパスワードを設定してください。' : '登録時のパスワードを入力してください。';
   $('#account-password-confirm').autocomplete = authMode === 'register' ? 'new-password' : 'off';
   $('#account-submit').textContent = authMode === 'register' ? '無料で登録する' : 'ログインする';
   $('#account-data-note').hidden = authMode === 'login';
@@ -198,6 +201,7 @@ deleteForm.addEventListener('submit', async (event) => {
 });
 
 function renderAccount() {
+  $('#account-page-title').textContent = state.user ? 'マイページ' : authMode === 'register' ? '会員登録' : 'ログイン';
   $('#signed-out').hidden = Boolean(state.user);
   $('#signed-in').hidden = !state.user;
   $('#preference-list').hidden = !state.user;
@@ -223,6 +227,7 @@ $$('[data-pref]').forEach((input) => input.addEventListener('change', async () =
   try {
     const result = await api('auth/preferences', { method: 'PUT', body: JSON.stringify(preferences) });
     state.user.preferences = result.preferences;
+    renderNotices();
     notify('通知設定を保存しました。');
   } catch (error) {
     input.checked = !input.checked;
@@ -264,7 +269,9 @@ function renderNotices() {
     return;
   }
   const label = { news: '新作', restock: '再販', color: '新色', important: '重要' };
-  $('#notice-list').innerHTML = state.notices.length ? state.notices.map((notice) => `<article><span>${label[notice.type] || 'お知らせ'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><footer><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</footer></div></article>`).join('') : '<div class="account-empty"><strong>お知らせはまだありません</strong></div>';
+  const preference = { news: 'newItems', restock: 'restock', color: 'newColors' };
+  const visible = state.notices.filter((notice) => !state.user || notice.type === 'important' || state.user.preferences?.[preference[notice.type]] !== false);
+  $('#notice-list').innerHTML = visible.length ? visible.map((notice) => `<article><span>${label[notice.type] || 'お知らせ'}</span><div><strong>${esc(notice.title)}</strong><p>${esc(notice.body)}</p><footer><time>${new Date(notice.created_at).toLocaleDateString('ja-JP')}</time>${notice.product_id ? `<a href="./product.html?id=${encodeURIComponent(notice.product_id)}">関連商品を見る →</a>` : ''}</footer></div></article>`).join('') : '<div class="account-empty"><strong>表示するお知らせはありません</strong><p>ログイン中は通知設定で選んだ種類を表示します。</p></div>';
 }
 
 async function init() {

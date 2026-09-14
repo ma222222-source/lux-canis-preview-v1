@@ -19,7 +19,7 @@
       <h1>管理者ログイン</h1>
       <p>商品の編集やお知らせの配信を行う運営専用画面です。</p>
       <label>パスワード
-        <span class="password-field"><input id="admin-password" type="password" inputmode="numeric" autocomplete="current-password" required autofocus><button type="button" id="toggle-admin-password">表示</button></span>
+        <span class="password-field"><input id="admin-password" type="password" autocomplete="current-password" required autofocus><button type="button" id="toggle-admin-password">表示</button></span>
       </label>
       <p class="form-error" id="login-error" role="alert"></p>
       <button class="button button-primary" type="submit">ログイン</button>
@@ -91,7 +91,7 @@
 
   <dialog class="product-editor" id="product-editor" aria-labelledby="editor-title">
     <form id="product-form">
-      <header><div><p class="eyebrow">PRODUCT EDITOR</p><h2 id="editor-title">商品を追加</h2></div><button class="icon-button" type="button" data-close-editor aria-label="閉じる">×</button></header>
+      <header><div><p class="eyebrow">商品情報</p><h2 id="editor-title">商品を追加</h2></div><button class="icon-button" type="button" data-close-editor aria-label="閉じる">×</button></header>
       <div class="editor-body">
         <input type="hidden" name="id">
         <div class="image-editor">
@@ -103,7 +103,7 @@
           <label>価格（円）<input name="price" type="number" inputmode="numeric" min="0" max="10000000" step="1" value="0"></label>
           <label>在庫数<input name="stockQuantity" type="number" inputmode="numeric" min="0" max="100000" step="1" value="0"><small>内部管理と商品詳細に表示されます</small></label>
           <label>カテゴリ<select name="category"><option value="ear">ピアス・イヤリング</option><option value="bracelet">ブレスレット</option><option value="necklace">ネックレス</option><option value="charm">チャーム</option><option value="other">その他</option></select></label>
-          <label>在庫表示<select name="status"><option value="available">販売中</option><option value="new">NEW</option><option value="low">残りわずか</option><option value="sold">SOLD OUT</option></select></label>
+          <label>在庫表示<select name="status"><option value="available">販売中</option><option value="new">新作</option><option value="low">残りわずか</option><option value="sold">売り切れ</option></select></label>
           <label>並び順<input name="sortOrder" type="number" inputmode="numeric" step="1" value="0"></label>
           <span></span>
           <fieldset class="variant-fieldset span-2"><legend>カラーごとの写真</legend><p>カラー名と、そのカラーを押したときに表示する写真を組み合わせます。</p><div class="variant-editor" id="variant-editor"></div><button class="button button-ghost" id="add-variant" type="button">カラーを追加</button></fieldset>
@@ -114,7 +114,7 @@
           <label class="check-row span-2"><input name="published" type="checkbox" checked>お客様向けサイトに公開する</label>
         </div>
       </div>
-      <footer><button class="button button-danger" id="delete-product" type="button" hidden>この商品を削除</button><span></span><button class="button button-ghost" type="button" data-close-editor>キャンセル</button><button class="button button-primary" type="submit">保存して反映</button></footer>
+      <footer><p id="editor-error" role="alert" hidden></p><button class="button button-danger" id="delete-product" type="button" hidden>この商品を削除</button><span></span><button class="button button-ghost" type="button" data-close-editor>キャンセル</button><button class="button button-primary" type="submit">保存して反映</button></footer>
     </form>
   </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

@@ -64,6 +64,7 @@ const login = new Element(); login.dataset.auth = 'login';
 account.groups.set('[data-auth]', [register, login]);
 account.run(); await tick(); await tick();
 assert.equal(account.get('#signed-in').hidden, false, 'notices failure must not hide logged-in account');
+assert.equal(account.get('#account-page-title').textContent, 'マイページ');
 assert.match(account.get('#notice-list').innerHTML, /もう一度読み込む/);
 console.log('✓ お知らせ失敗でもログインを維持し、再読み込みを案内');
 
@@ -85,6 +86,48 @@ await signingIn;
 assert.equal(register.disabled, false);
 assert.equal(account.get('#account-password').type, 'password');
 console.log('✓ 登録処理中のモード変更を防ぎ、完了後はパスワードを隠す');
+
+vm.runInContext(`state.user.preferences = { newItems: false, restock: true, newColors: false };
+state.notices = [
+  { type: 'news', title: '非表示の新作', body: '', created_at: '2026-09-10' },
+  { type: 'restock', title: '表示する再販', body: '', created_at: '2026-09-10' },
+  { type: 'important', title: '必ず表示する重要情報', body: '', created_at: '2026-09-10' }
+]; renderNotices();`, account.context);
+assert.doesNotMatch(account.get('#notice-list').innerHTML, /非表示の新作/);
+assert.match(account.get('#notice-list').innerHTML, /表示する再販/);
+assert.match(account.get('#notice-list').innerHTML, /必ず表示する重要情報/);
+console.log('✓ 通知設定で実際に絞り込み、重要情報は常時表示');
+
+let securityCalls = 0; let finishSecurity;
+const security = page('account-security.js', async () => response({}));
+security.context.state = { user: { name: '確認' }, restock: [] };
+security.context.api = () => { securityCalls++; return new Promise((resolve, reject) => { finishSecurity = { resolve, reject }; }); };
+security.context.renderAccount = () => {};
+security.context.showView = () => {};
+security.get('[data-auth="login"]').click = () => {};
+security.get('#change-password-form').reportValidity = () => true;
+security.get('#change-password-form').querySelectorAll = () => [security.get('#new-password'), security.get('#current-password')];
+security.run();
+security.get('#current-password').value = 'old-valid-password';
+security.get('#new-password').value = security.get('#confirm-new-password').value = 'new-valid-password';
+const changeFailed = security.get('#change-password-form').fire('submit');
+await security.get('#change-password-form').fire('submit');
+await security.get('#logout-all-button').fire('click');
+assert.equal(securityCalls, 1);
+assert.equal(security.get('#new-password').disabled, true);
+finishSecurity.reject(new Error('通信失敗'));
+await changeFailed;
+assert.equal(security.get('#new-password').value, 'new-valid-password');
+assert.equal(security.get('#new-password').disabled, false);
+assert.match(security.get('#change-password-status').textContent, /通信失敗/);
+assert.ok(security.context.state.user);
+const changeSuccess = security.get('#change-password-form').fire('submit');
+finishSecurity.resolve({ ok: true });
+await changeSuccess;
+assert.equal(security.context.state.user, null);
+assert.match(security.get('#account-security-feedback').textContent, /新しいパスワード/);
+assert.equal(security.get('#account-password').focused, true);
+console.log('✓ パスワード変更の連打・他操作を防ぎ、失敗時は保持、成功時は再ログイン');
 
 for (const [next, allowed] of [
   ['/product.html?id=tiny-drop&color=Blue', true],
@@ -174,3 +217,9 @@ assert.match(product.context.location.href, /account\.html\?next=/);
 assert.match(decodeURIComponent(product.context.location.href), /color=Blue/);
 console.log('✓ 再販登録の連打を防ぎ、ログインへの移動でもカラーを保持');
 console.log('Frontend regression tests passed.');
+vm.runInContext('state.user = null; renderAccount();', account.context);
+await login.fire('click');
+assert.equal(account.get('#account-page-title').textContent, 'ログイン');
+await register.fire('click');
+assert.equal(account.get('#account-page-title').textContent, '会員登録');
+console.log('✓ 登録・ログイン・ログイン済みの見出しを正しく切り替える');

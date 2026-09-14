@@ -62,3 +62,33 @@
   .guide-contact { margin: 0 18px 76px; padding: 64px 20px; border-radius: 28px; }
 }
 @media (prefers-reduced-motion: reduce) { .faq-list summary i::after { transition: none; } }
+
+/* Compact reading layout: numbers belong to their headings, not empty panels. */
+.guide-hero { min-height: 0; padding: 32px 28px; display: block; }
+.guide-hero h1 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.5; }
+.guide-jump { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.guide-jump a { min-height: 48px; gap: 8px; font-size: .875rem; }
+.guide-section { padding-block: clamp(36px, 5vw, 64px); scroll-margin-top: 16px; }
+.guide-heading { gap: 12px 28px; margin-bottom: 24px; }
+.guide-heading .kicker { margin: 0; }
+.guide-heading h2, .guide-contact h2 { font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.5; letter-spacing: .02em; text-wrap: pretty; }
+.order-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.order-steps li { min-height: 0; padding: 22px; flex-direction: row; justify-content: start; gap: 12px; align-items: baseline; }
+.order-steps > li > span, .care-grid article > span { flex: 0 0 auto; font-size: .875rem; color: #78613e; }
+.order-steps > li > span::after, .care-grid article > span::after { content: "."; }
+.order-steps h3, .care-grid h3 { font-family: inherit; font-size: 1rem; font-weight: 600; line-height: 1.6; }
+.order-steps p, .care-grid p { margin-top: 8px; font-size: .9375rem; line-height: 1.85; overflow-wrap: anywhere; }
+.care-grid article { min-height: 0; padding: 22px; border-radius: 12px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; align-items: baseline; column-gap: 12px; }
+.care-grid h3 { margin: 0; }
+.care-grid p { grid-column: 2; }
+.faq-list summary { min-height: 64px; padding-block: 16px; gap: 16px; }
+.faq-list details > p { padding: 0 4px 20px; }
+.guide-contact { margin-bottom: 56px; padding: 36px 24px; border-radius: 16px; }
+.guide-contact > p:not(.kicker) { margin: 16px auto 24px; }
+@media (max-width: 560px) {
+  .guide-hero { padding: 24px 18px; }
+  .guide-jump { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  .order-steps, .care-grid { grid-template-columns: 1fr; }
+  .order-steps li, .care-grid article { padding: 18px 16px; }
+  .guide-contact { margin-inline: 18px; padding-inline: 20px; }
+}

@@ -3,3 +3,12 @@
 .restock-item button { min-height: 44px; }
 .auth-tabs button:disabled, #logout-button:disabled, .restock-item button:disabled { opacity: .6; cursor: wait; }
 .profile-card > div, .restock-item > div, .notice-list article > div { min-width: 0; overflow-wrap: anywhere; }
+.account-security { margin: 32px 0; padding: 24px 0; border-top: 1px solid var(--line); }
+.account-security h2 { font-size: 1.15rem; line-height: 1.5; }
+.account-security details, .account-recovery-note { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.account-security summary, .account-recovery-note summary { min-height: 44px; padding: 10px 0; cursor: pointer; font-size: 1rem; line-height: 1.6; }
+.account-security p, .account-recovery-note p { font-size: .9375rem; line-height: 1.8; overflow-wrap: anywhere; }
+.account-security .app-form { max-width: 540px; padding: 16px 0; }
+.account-security input { box-sizing: border-box; width: 100%; min-height: 48px; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 8px; }
+.account-security button { min-height: 48px; white-space: normal; }
+.account-security :focus-visible, .account-recovery-note :focus-visible { outline: 3px solid #81622f; outline-offset: 4px; }

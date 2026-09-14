@@ -2,7 +2,7 @@ const USER_COOKIE = 'lux_session';
 const ADMIN_COOKIE = 'lux_admin_session';
 const USER_SESSION_DAYS = 30;
 const ADMIN_SESSION_HOURS = 8;
-const PRIVACY_VERSION = '2026-08-17';
+const PRIVACY_VERSION = '2026-09-10';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Map([
   ['image/jpeg', 'jpg'],
@@ -69,24 +69,63 @@ async function safeEqual(left, right) {
 
 function isSameOrigin(request) {
   const origin = request.headers.get('origin');
+  if (request.headers.get('sec-fetch-site') === 'cross-site') return false;
   return !origin || origin === new URL(request.url).origin;
 }
 
 async function readJson(request) {
-  if (!(request.headers.get('content-type') || '').includes('application/json')) throw new Error('JSON形式で送信してください。');
-  return request.json();
+  const invalid = (message, status = 400) => Object.assign(new Error(message), { status, code: 'INVALID_INPUT' });
+  if (!(request.headers.get('content-type') || '').includes('application/json')) throw invalid('JSON形式で送信してください。', 415);
+  if (Number(request.headers.get('content-length')) > 65536) throw invalid('送信内容が大きすぎます。', 413);
+  const reader = request.body?.getReader();
+  if (!reader) throw invalid('入力内容を確認してください。');
+  const chunks = []; let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > 65536) { await reader.cancel(); throw invalid('送信内容が大きすぎます。', 413); }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size); let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  try {
+    const data = JSON.parse(new TextDecoder().decode(bytes));
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error();
+    return data;
+  } catch { throw invalid('入力内容の形式を確認してください。'); }
+}
+
+async function limitAttempts(context, scope, identity, limit, windowSeconds = 900) {
+  const now = Math.floor(Date.now() / 1000);
+  const expires = (Math.floor(now / windowSeconds) + 1) * windowSeconds;
+  const key = await sha256(`${scope}:${identity}:${expires}`);
+  // A single atomic upsert keeps simultaneous requests from bypassing the limit.
+  const row = await context.env.DB.prepare(`INSERT INTO security_limits (key_hash, attempts, expires_at) VALUES (?, 1, ?)
+    ON CONFLICT(key_hash) DO UPDATE SET attempts = MIN(attempts + 1, ?)
+    RETURNING attempts`).bind(key, expires, limit + 1).first();
+  context.waitUntil(context.env.DB.prepare('DELETE FROM security_limits WHERE key_hash IN (SELECT key_hash FROM security_limits WHERE expires_at <= ? LIMIT 64)').bind(now).run().catch(() => {}));
+  if (row.attempts > limit) throw Object.assign(new Error('操作が続いています。しばらく待ってからお試しください。'), { status: 429, code: 'RATE_LIMITED', retryAfter: expires - now });
+}
+
+function newPassword(value) {
+  const password = String(value ?? '');
+  if (password.length < 15 || password.length > 200 || password !== password.trim()) {
+    throw Object.assign(new Error('新しいパスワードは15〜200文字で、先頭・末尾に空白を入れずに設定してください。'), { status: 400, code: 'INVALID_PASSWORD' });
+  }
+  return password;
 }
 
 function cleanText(value, max, required = false) {
   const text = String(value ?? '').trim();
-  if (required && !text) throw new Error('必須項目が入力されていません。');
-  if (text.length > max) throw new Error(`${max}文字以内で入力してください。`);
+  if (required && !text) throw Object.assign(new Error('必須項目が入力されていません。'), { status: 400 });
+  if (text.length > max) throw Object.assign(new Error(`${max}文字以内で入力してください。`), { status: 400 });
   return text;
 }
 
 function cleanEmail(value) {
   const email = cleanText(value, 254, true).toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('メールアドレスの形式を確認してください。');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error('メールアドレスの形式を確認してください。'), { status: 400 });
   return email;
 }
 
@@ -137,14 +176,16 @@ function publicUser(row) {
   return { id: row.id, name: row.name, email: row.email, preferences: JSON.parse(row.preferences || '{}'), createdAt: row.created_at };
 }
 
-async function createSession(env, kind, userId = null) {
+async function createSession(env, kind, userId = null, authVersion = 0) {
   const token = randomHex();
   const tokenHash = await sha256(token);
   const seconds = kind === 'admin' ? ADMIN_SESSION_HOURS * 3600 : USER_SESSION_DAYS * 86400;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + seconds * 1000).toISOString();
-  await env.DB.prepare('INSERT INTO sessions (token_hash, user_id, kind, expires_at, created_at) VALUES (?, ?, ?, ?, ?)')
-    .bind(tokenHash, userId, kind, expiresAt, now.toISOString()).run();
+  const credentialTag = kind === 'admin' ? await sha256(env.ADMIN_PASSWORD) : '';
+  await env.DB.prepare('INSERT INTO sessions (token_hash, user_id, kind, expires_at, created_at, auth_version, credential_tag) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(tokenHash, userId, kind, expiresAt, now.toISOString(), authVersion, credentialTag).run();
+  await env.DB.prepare('DELETE FROM sessions WHERE token_hash IN (SELECT token_hash FROM sessions WHERE expires_at <= ? LIMIT 64)').bind(now.toISOString()).run();
   return { token, seconds };
 }
 
@@ -153,10 +194,11 @@ async function getSession(request, env, kind) {
   const token = parseCookies(request)[name];
   if (!token) return null;
   const tokenHash = await sha256(token);
-  const row = await env.DB.prepare(`SELECT sessions.*, users.name, users.email, users.preferences, users.active, users.created_at AS user_created_at
+  const row = await env.DB.prepare(`SELECT sessions.*, users.name, users.email, users.preferences, users.active, users.auth_version AS user_auth_version, users.created_at AS user_created_at
     FROM sessions LEFT JOIN users ON users.id = sessions.user_id
     WHERE sessions.token_hash = ? AND sessions.kind = ? AND sessions.expires_at > ?`).bind(tokenHash, kind, new Date().toISOString()).first();
-  if (!row || (kind === 'user' && !row.active)) return null;
+  if (!row || (kind === 'user' && (!row.active || row.auth_version !== row.user_auth_version))) return null;
+  if (kind === 'admin' && (!env.ADMIN_PASSWORD || row.credential_tag !== await sha256(env.ADMIN_PASSWORD))) return null;
   return { ...row, tokenHash };
 }
 
@@ -239,14 +281,14 @@ async function handleImages(context, path) {
 
 async function handleAuth(context, path) {
   const { request, env } = context;
+  if (path.length !== 2) return fail('見つかりません。', 404, 'NOT_FOUND');
   const action = path[1];
   if (request.method === 'POST' && action === 'register') {
     const data = await readJson(request);
     if (data.privacyConsent !== true) return fail('会員登録にはプライバシーポリシーへの同意が必要です。', 400, 'PRIVACY_CONSENT_REQUIRED');
     const name = cleanText(data.name, 80, true);
     const email = cleanEmail(data.email);
-    const password = cleanText(data.password, 200, true);
-    if (password.length < 8) return fail('パスワードは8文字以上にしてください。');
+    const password = newPassword(data.password);
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
     if (existing) return fail('このメールアドレスは登録済みです。', 409, 'ALREADY_EXISTS');
     const salt = bytesToBase64(crypto.getRandomValues(new Uint8Array(16)));
@@ -254,8 +296,13 @@ async function handleAuth(context, path) {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const preferences = JSON.stringify({ newItems: true, restock: true, newColors: true, email: false, privacyAcceptedAt: now, privacyVersion: PRIVACY_VERSION });
-    await env.DB.prepare('INSERT INTO users (id, name, email, password_hash, password_salt, preferences, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-      .bind(id, name, email, hash, salt, preferences, now, now).run();
+    try {
+      await env.DB.prepare('INSERT INTO users (id, name, email, password_hash, password_salt, preferences, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(id, name, email, hash, salt, preferences, now, now).run();
+    } catch (error) {
+      if (String(error).includes('UNIQUE')) return fail('このメールアドレスは登録済みです。', 409, 'ALREADY_EXISTS');
+      throw error;
+    }
     const session = await createSession(env, 'user', id);
     const row = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
     return json({ ok: true, user: publicUser(row) }, 201, { 'set-cookie': cookie(USER_COOKIE, session.token, session.seconds) });
@@ -263,10 +310,12 @@ async function handleAuth(context, path) {
   if (request.method === 'POST' && action === 'login') {
     const data = await readJson(request);
     const email = cleanEmail(data.email);
+    await limitAttempts(context, 'login-account', email, 12);
     const password = cleanText(data.password, 200, true);
     const row = await env.DB.prepare('SELECT * FROM users WHERE email = ? AND active = 1').bind(email).first();
-    if (!row || !await safeEqual(await passwordHash(password, row.password_salt), row.password_hash)) return fail('メールアドレスまたはパスワードが違います。', 401, 'INVALID_CREDENTIALS');
-    const session = await createSession(env, 'user', row.id);
+    const computed = await passwordHash(password, row?.password_salt || 'AAAAAAAAAAAAAAAAAAAAAA==');
+    if (!row || !await safeEqual(computed, row.password_hash)) return fail('メールアドレスまたはパスワードが違います。', 401, 'INVALID_CREDENTIALS');
+    const session = await createSession(env, 'user', row.id, row.auth_version);
     return json({ ok: true, user: publicUser(row) }, 200, { 'set-cookie': cookie(USER_COOKIE, session.token, session.seconds) });
   }
   if (request.method === 'POST' && action === 'logout') {
@@ -279,16 +328,45 @@ async function handleAuth(context, path) {
     if (!session) return json({ ok: true, user: null });
     return json({ ok: true, user: { id: session.user_id, name: session.name, email: session.email, preferences: JSON.parse(session.preferences || '{}'), createdAt: session.user_created_at } });
   }
+  if (request.method === 'POST' && action === 'password') {
+    const session = await requireSession(request, env, 'user');
+    await limitAttempts(context, 'password-account', session.user_id, 8);
+    const data = await readJson(request);
+    const current = cleanText(data.currentPassword, 200, true);
+    const password = newPassword(data.newPassword);
+    if (password === current) return fail('現在とは異なるパスワードを設定してください。');
+    const row = await env.DB.prepare('SELECT password_hash, password_salt, auth_version FROM users WHERE id = ? AND active = 1').bind(session.user_id).first();
+    if (!row || !await safeEqual(await passwordHash(current, row.password_salt), row.password_hash)) return fail('現在のパスワードが違います。', 401, 'INVALID_CREDENTIALS');
+    const salt = bytesToBase64(crypto.getRandomValues(new Uint8Array(16)));
+    const hash = await passwordHash(password, salt);
+    const results = await env.DB.batch([
+      env.DB.prepare('UPDATE users SET password_hash = ?, password_salt = ?, auth_version = auth_version + 1, updated_at = ? WHERE id = ? AND auth_version = ?')
+        .bind(hash, salt, new Date().toISOString(), session.user_id, row.auth_version),
+      env.DB.prepare('DELETE FROM sessions WHERE user_id = ? AND auth_version < (SELECT auth_version FROM users WHERE id = ?)').bind(session.user_id, session.user_id)
+    ]);
+    if (!results[0].meta.changes) return fail('別の操作でログイン情報が更新されました。もう一度ログインしてください。', 409, 'AUTH_CHANGED');
+    return json({ ok: true }, 200, { 'set-cookie': clearCookie(USER_COOKIE) });
+  }
+  if (request.method === 'POST' && action === 'logout-all') {
+    const session = await requireSession(request, env, 'user');
+    await env.DB.batch([
+      env.DB.prepare('UPDATE users SET auth_version = auth_version + 1 WHERE id = ?').bind(session.user_id),
+      env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(session.user_id)
+    ]);
+    return json({ ok: true }, 200, { 'set-cookie': clearCookie(USER_COOKIE) });
+  }
   if (request.method === 'PUT' && action === 'preferences') {
     const session = await requireSession(request, env, 'user');
     const data = await readJson(request);
     const previous = JSON.parse(session.preferences || '{}');
-    const preferences = { ...previous, newItems: Boolean(data.newItems), restock: Boolean(data.restock), newColors: Boolean(data.newColors), email: Boolean(data.email) };
+    if (data.email === true) return fail('メール配信はまだ利用できません。サイト内のお知らせをご確認ください。', 409, 'EMAIL_UNAVAILABLE');
+    const preferences = { ...previous, newItems: Boolean(data.newItems), restock: Boolean(data.restock), newColors: Boolean(data.newColors), email: false };
     await env.DB.prepare('UPDATE users SET preferences = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(preferences), new Date().toISOString(), session.user_id).run();
     return json({ ok: true, preferences });
   }
   if (request.method === 'DELETE' && action === 'account') {
     const session = await requireSession(request, env, 'user');
+    await limitAttempts(context, 'delete-account', session.user_id, 8);
     const data = await readJson(request);
     if (cleanText(data.confirmation, 20, true) !== '削除') return fail('確認欄に「削除」と入力してください。', 400, 'CONFIRMATION_REQUIRED');
     const password = cleanText(data.password, 200, true);
@@ -333,7 +411,7 @@ async function handleAdmin(context, path) {
       env.DB.prepare('SELECT COUNT(*) AS count FROM restock_requests'),
       env.DB.prepare('SELECT COUNT(*) AS count FROM notices WHERE published = 1')
     ]);
-    return json({ ok: true, metrics: { products: products.results[0].count, users: users.results[0].count, contacts: contacts.results[0].count, restock: restock.results[0].count, notices: notices.results[0].count } });
+    return json({ ok: true, readiness: { adminPasswordStrong: (env.ADMIN_PASSWORD || '').length >= 16 && new Set(env.ADMIN_PASSWORD).size >= 8, emailReady: false }, metrics: { products: products.results[0].count, users: users.results[0].count, contacts: contacts.results[0].count, restock: restock.results[0].count, notices: notices.results[0].count } });
   }
   if (request.method === 'GET' && action === 'users') {
     const result = await env.DB.prepare('SELECT id, name, email, active, preferences, created_at FROM users ORDER BY created_at DESC LIMIT 500').all();
@@ -491,6 +569,11 @@ export async function onRequest(context) {
     const rawPath = context.params.path;
     const path = (Array.isArray(rawPath) ? rawPath : [rawPath]).filter(Boolean).map(String);
     if (!path.length) return fail('見つかりません。', 404, 'NOT_FOUND');
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+      const endpoint = path.join('/');
+      const limit = { 'auth/login': 60, 'admin/login': 10, 'auth/register': 5, 'contacts': 6 }[endpoint];
+      if (limit) await limitAttempts(context, endpoint, request.headers.get('cf-connecting-ip') || 'local', limit);
+    }
     if (path[0] === 'images') return await handleImages(context, path);
     if (path[0] === 'auth') return await handleAuth(context, path);
     if (path[0] === 'admin') return await handleAdmin(context, path);
@@ -502,7 +585,8 @@ export async function onRequest(context) {
   } catch (error) {
     const status = Number(error.status) || 500;
     const code = error.code || (status === 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
-    console.error(JSON.stringify({ level: 'error', code, path: new URL(request.url).pathname, method: request.method, message: error.message }));
+    if (status >= 500) console.error(JSON.stringify({ level: 'error', code, path: new URL(request.url).pathname, method: request.method }));
+    if (status === 429) return json({ ok: false, error: { code, message: error.message } }, 429, { 'retry-after': String(error.retryAfter) });
     return fail(status === 500 ? '処理に失敗しました。時間をおいて再度お試しください。' : error.message, status, code);
   }
 }

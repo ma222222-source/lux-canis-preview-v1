@@ -1,10 +1,11 @@
-const CACHE = 'lux-canis-v27';
+const CACHE = 'lux-canis-v28';
 const CORE = ['./','./index.html','./styles.css','./home-v2.css','./home-art.css','./script.js','./product.html','./product.css','./product-enhancements.css','./product.js','./account.html','./account.css','./account-polish.css','./account-art.css','./visibility.css','./account.js','./contact.html','./contact.css','./contact.js','./guide.html','./guide.css','./privacy.html','./privacy.css','./icon.svg','./assets/lux-canis-logo.jpg','./manifest.webmanifest'];
-self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting())));
+self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE.filter((path) => path !== './account.html'))).then(() => self.skipWaiting())));
 self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') || event.request.method !== 'GET') return;
+  if (['/admin', '/admin.html', '/account', '/account.html'].includes(url.pathname)) return;
   const cacheKey = url.pathname;
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).then((response) => {

@@ -64,3 +64,24 @@
   .profile-data div:last-child { border-bottom:0; }
 }
 @media(prefers-reduced-motion:reduce){.member-benefits{scroll-behavior:auto}.account-page *{transition-duration:.01ms!important}}
+
+.account-page .account-view h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); line-height: 1.5; letter-spacing: .02em; }
+.account-page .view-lede { margin-top: 12px; line-height: 1.85; text-wrap: pretty; }
+.account-page .member-benefits { margin-block: 24px; }
+.account-page .member-benefits > div { min-height: 0; padding: 20px; }
+.account-page .data-guide { padding: 28px 24px; border-radius: 16px; }
+.account-page .data-guide h2 { font-family: inherit; font-size: 1.25rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+.account-page .data-guide dl div { padding-block: 14px; }
+.account-page .data-guide dt { font-size: .8125rem; }
+.account-page .data-guide dd, .account-page .local-like-note { font-size: .875rem; line-height: 1.85; }
+.account-page .field-error:empty, .account-page .auth-error:empty { display: none; }
+.account-page .profile-email, .account-page #profile-email { overflow-wrap: anywhere; }
+.account-page .member-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; overflow: visible; }
+.account-page .member-benefits > div { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; align-items: baseline; gap: 8px 10px; border-radius: 12px; }
+.account-page .member-benefits > div > span { margin: 0; }
+.account-page .member-benefits > div > strong { margin: 0; font-size: .9375rem; line-height: 1.6; }
+.account-page .member-benefits > div > p { grid-column: 2; margin: 0; font-size: .875rem; line-height: 1.8; }
+@media (max-width: 680px) {
+  .account-page .member-benefits { grid-template-columns: 1fr; gap: 8px; }
+  .account-page .member-benefits > div { padding: 14px 16px; }
+}
